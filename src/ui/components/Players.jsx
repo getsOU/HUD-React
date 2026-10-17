@@ -1,4 +1,4 @@
-import { activeWeapon, money, observerSlot, playerDead, roster, samePlayer, statistic, teamName } from '../../model.js';
+import { activeWeapon, money, observerSlot, playerDead, roster, rosterWeapon, samePlayer, statistic, teamName } from '../../model.js';
 import { compactUtility, economy, hasBomb, playerCoverage, playerName, profileFor, utilityCopies, weaponList } from '../../model/showcase.js';
 import { rawWeapon, weaponLabel } from '../../model/assets.js';
 import { LocalImage, Meter, NumberStat } from './Common.jsx';
@@ -22,7 +22,7 @@ export function PlayerBadges({ player, state, showHelmet = true }) {
     {player.burning > 0 && <Icon name="weapons/inferno" label={`Burning ${player.burning}`} base={base} />}</span>;
 }
 export function PlayerRow({ player, state }) {
-  const weapon = activeWeapon(player), dead = playerDead(player);
+  const weapon = rosterWeapon(player), dead = playerDead(player);
   const selected = samePlayer(player, state.snapshot?.game?.observedPlayer);
   const profile = profileFor(state.snapshot, state.metadata, player.steamId, state.settings.feature.player);
   const name = playerName(player, profile);

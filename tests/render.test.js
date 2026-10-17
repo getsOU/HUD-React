@@ -166,11 +166,11 @@ for (const life of [{ health: 0 }, { health: -1 }, { health: 100, isAlive: false
     assert.doesNotMatch(html, /m4a1_silencer|M4A1-S|smokegrenade|weapons\/c4|Unknown weapon|Weapon unavailable|73|99/);
   }
 });
-test('alive unarmed and holstered-only players leave current weapon and ammo absent', () => {
+test('alive unarmed players leave roster empty and holstered weapons do not replace the observer held weapon', () => {
   const base = fixture('live').snapshot.game.players[0];
   for (const weapons of [[], [{ name: 'weapon_awp', type: 'sniperRifle', state: 'holstered' }]]) {
     const player = { ...base, health: 100, isAlive: true, weapons, activeWeapon: staleCurrentWeapon() };
-    for (const component of [PlayerRow, ObservedPlayer]) {
+    for (const component of weapons.length ? [ObservedPlayer] : [PlayerRow, ObservedPlayer]) {
       const html = renderPlayer(component, player);
       assert.doesNotMatch(html, /m4a1_silencer|M4A1-S|weapon-icon|weapons\/awp|Unknown weapon|Weapon unavailable|73|99/);
     }
@@ -181,10 +181,22 @@ test('alive unarmed and holstered-only players leave current weapon and ammo abs
 test('actually present unknown weapon keeps its fallback distinct from an absent weapon', () => {
   const base = fixture('live').snapshot.game.players[0];
   for (const state of ['active', 'reloading']) {
-    const player = { ...base, health: 100, isAlive: true, weapons: [{ slot: 'primary', name: '', kind: 'unknown', state, ammoClip: 73, ammoReserve: 99 }] };
+    const player = { ...base, health: 100, isAlive: true, weapons: [{ slot: 'primary', type: 'rifle', name: '', kind: 'unknown', state, ammoClip: 73, ammoReserve: 99 }] };
     for (const [component, props] of [[PlayerRow, {}], [ObservedPlayer, {}], [ObservedPlayer, { expanded: true }]]) assert.match(renderPlayer(component, player, props), /Unknown weapon/);
     assert.match(renderPlayer(ObservedPlayer, player), /73/);
   }
+});
+
+test('roster shows the carried primary while observer shows the held knife, then falls back after drops', () => {
+  const base = fixture('live').snapshot.game.players[0];
+  const knife = { name: 'weapon_knife', type: 'knife', state: 'active' };
+  const pistol = { name: 'weapon_glock', type: 'pistol', state: 'holstered' };
+  const primary = { name: 'weapon_awp', type: 'sniperRifle', state: 'holstered' };
+  const player = { ...base, health: 100, weapons: [knife, pistol, primary] };
+  assert.match(renderPlayer(PlayerRow, player), /weapons\/awp\.svg/);
+  assert.match(renderPlayer(ObservedPlayer, player), /weapons\/knife\.svg/);
+  assert.match(renderPlayer(PlayerRow, { ...player, weapons: [knife, pistol] }), /weapons\/glock\.svg/);
+  assert.match(renderPlayer(PlayerRow, { ...player, weapons: [knife] }), /weapons\/knife\.svg/);
 });
 test('missing weapon icon renders no unknown box while real named unknown equipment remains labeled', () => {
   assert.equal(renderToStaticMarkup(createElement(Icon, { weapon: null })), '');

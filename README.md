@@ -6,7 +6,7 @@ and seven presentation views. Every display uses public protocol-v2 snapshots, o
 local profile metadata, or an explicit operator setting. It does not invent
 players, match results, events or statistics.
 
-Current HUD version: **0.4.7**. Package ID: `sou-basic-react`.
+Current HUD version: **0.4.8**. Package ID: `sou-basic-react`.
 
 ![Packaged React HUD with calibrated radar, local icons and compact edge displays over a CS2 reference scene](docs/preview.png)
 
@@ -127,7 +127,7 @@ There are no separate HTML builds or router dependencies.
 
 Open a dedicated subview through sOU's output selection. Relative paths above
 are resolved beneath the installed package root, for example
-`/hud-packages/sou-basic-react/0.4.7/views/veto`. Keep the sOU-generated address,
+`/hud-packages/sou-basic-react/0.4.8/views/veto`. Keep the sOU-generated address,
 browser session and base path. Explicit subviews ignore the main scene selector;
 changing **Main output scene** does not turn a dedicated statistics output into
 another view.
@@ -137,7 +137,7 @@ another view.
 | Component | Public source | Limits and missing-data behavior |
 | --- | --- | --- |
 | Match header and identities | `managedMatch` (also available before GSI), explicit CT/T assignments and `game.ct`/`game.t` | Team A/B are stable match identities, not permanent CT/T sides. Only matching IDs and recognized/inferred/manual assignments resolve managed side names. Unknown assignments stay explicit. |
-| Player rosters | `game.players`, typed state, weapons and stats | Live keeps five two-line cards per side: observer digits, name, HP/armor, equipment/condition icons, active weapon, utility, money and K/D/A. Detailed inventory/ammo, equipment value and round statistics remain available in the detail views. Missing HP does not mean alive; zero remains zero. |
+| Player rosters | `game.players`, typed state, weapons and stats | Live keeps five two-line cards per side: observer digits, name, HP/armor, equipment/condition icons, carried primary firearm (otherwise pistol, otherwise knife), utility, money and K/D/A. Detailed inventory/ammo, equipment value and round statistics remain available in the detail views. Missing HP does not mean alive; zero remains zero. |
 | Observed player | `game.observedPlayer` | Actual observed identity, HP/armor, active weapon/ammo and utility; no first-player fallback. Recorded ADR/HS and full equipment belong to expanded Spotlight. Optional portraits require a matching profile/reference; missing images consume no live placeholder space. |
 | Round state/history | `roundNumber`, `roundPhase`, `roundWinner`, `roundWinReason`, `roundWins`, source countdown | History retains the winner's side at that round. A side is not relabeled with today's team assignment. No guessed clutch, MVP or overtime result. |
 | Bomb/defuse | `game.bomb` and source seconds; `game.roundBomb` as a state fallback | Planting/planted/defusing/defused/exploded are explicit. A state fallback does not invent a timer. Seconds are source values; no invented fixed plant or defuse duration and no authoritative progress from an unknown baseline. |
@@ -369,8 +369,8 @@ npm run package
 `SOU.Hud.Tool` **0.2.0-preview.4**, then packs and validates:
 
 ```text
-artifacts/sou-basic-react-0.4.7.souhud
-artifacts/sou-basic-react-0.4.7.souhud.sha256
+artifacts/sou-basic-react-0.4.8.souhud
+artifacts/sou-basic-react-0.4.8.souhud.sha256
 ```
 
 `npm run build` creates `dist/hud.json` and `dist/wwwroot` without packaging.
@@ -583,3 +583,7 @@ Known active weapons use the original icon without a repeated visible name. The 
 Fixed outer areas keep money, weapon, ammo and equipment stable; related information inside each area remains compact. Utility has no empty per-type columns. Two flashbangs render as two original icons with no count label, including full inventory views. Ammunition stays together as clip / reserve.
 
 The killfeed keeps complete names and all currently visible events without a six-row limit. Events expire eight seconds after first receipt; repeated snapshots do not renew them. New events appear at the bottom. Assisters use their own event-side color. Order follows NYXIA: blinded attacker icon, attacker, plus and flash-assist cue beside the assister, weapon, smoke, noscope, wallbang, headshot, victim. Long rows can grow leftwards and wrap at the canvas edge without ellipses.
+
+## Roster inventory priority (0.4.8)
+
+Roster rows show the carried primary firearm (rifle, sniper rifle, SMG, shotgun or machine gun), otherwise pistol, otherwise knife. Holding a knife or grenade does not hide a carried firearm. Dropping a weapon updates this selection. Dead players and absent/empty inventories show no weapon; unknown categories are not guessed. The observer continues to show the active/reloading weapon. A dedicated gutter separates the weapon from the compact utility group; two flashbangs still use two original icons.

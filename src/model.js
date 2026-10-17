@@ -64,6 +64,15 @@ export function clock(game) {
 
 /** Death is explicit; missing health alone does not mean dead. */
 export const playerDead = player => (Number.isFinite(player?.health) && player.health <= 0) || player?.isAlive === false;
+/** Roster inventory priority is independent of the currently held weapon. */
+export function rosterWeapon(player) {
+  if (playerDead(player) || !Array.isArray(player?.weapons)) return null;
+  const weapons = player.weapons;
+  return weapons.find(weapon => ['rifle', 'sniperRifle', 'submachineGun', 'shotgun', 'machineGun'].includes(weapon?.type))
+    ?? weapons.find(weapon => weapon?.type === 'pistol')
+    ?? weapons.find(weapon => weapon?.type === 'knife')
+    ?? null;
+}
 export function activeWeapon(player) {
   if (playerDead(player)) return null;
   if (Array.isArray(player?.weapons)) return player.weapons.find(weapon => weapon?.state === 'active' || weapon?.state === 'reloading') ?? null;

@@ -2,12 +2,24 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   EMPTY, activeWeapon, clock, localPreviewMode, money, observerSlot, panelSettings,
-  playerDead, roster, samePlayer, statistic, teamName, time, weaponName,
+  playerDead, roster, rosterWeapon, samePlayer, statistic, teamName, time, weaponName,
 } from '../src/model.js';
 const coreSettings = state => {
   const { caption, showRosters, showObservedPlayer } = panelSettings(state);
   return { caption, showRosters, showObservedPlayer };
 };
+
+test('roster priority uses inventory categories independently of held state and preserves absence', () => {
+  const knife = { type: 'knife', state: 'active' }, pistol = { type: 'pistol', state: 'holstered' }, grenade = { type: 'grenade', state: 'active' };
+  for (const type of ['rifle', 'sniperRifle', 'submachineGun', 'shotgun', 'machineGun']) {
+    const primary = { type, state: 'holstered' };
+    assert.equal(rosterWeapon({ health: null, weapons: [knife, grenade, pistol, primary] }), primary);
+    assert.equal(rosterWeapon({ health: 0, weapons: [primary] }), null);
+  }
+  assert.equal(rosterWeapon({ weapons: [knife, pistol] }), pistol);
+  assert.equal(rosterWeapon({ weapons: [grenade, knife] }), knife);
+  for (const weapons of [null, undefined, [], [grenade], [{ type: 'unknown', state: 'active' }]]) assert.equal(rosterWeapon({ weapons, activeWeapon: pistol }), null);
+});
 
 test('missing and invalid values remain unknown, zero remains meaningful', () => {
   for (const value of [null, undefined, NaN, Infinity, -1, '0']) {

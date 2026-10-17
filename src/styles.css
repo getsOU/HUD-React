@@ -65,6 +65,7 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .player-top > *, .player-bottom > *, .observed-identity > *, .observed-weapon > * { min-width: 0; }
 .portrait-cell { display: grid; place-items: center; height: 100%; overflow: hidden; }
 .player-bottom { grid-template-columns: 2.395833cqw 2.291667cqw minmax(0, 1fr); }
+.player-bottom > .loadout-details { margin-inline-start: .416667cqw; }
 .weapon-cell { display: grid; align-items: end; justify-items: start; min-width: 0; height: 100%; overflow: hidden; }
 .utility-cell { min-width: 0; height: .729167cqw; }
 .observer-slot { display: grid; place-items: center; width: .9375cqw; height: 1.041667cqw; color: var(--side); background: var(--side-dark); flex: 0 0 auto; font-size: .729167cqw; font-weight: 700; }
