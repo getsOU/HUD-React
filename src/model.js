@@ -3,7 +3,6 @@
 /** @typedef {import('../public/sdk/contracts').TeamSide} TeamSide */
 
 export const EMPTY = '–';
-export const DEFAULT_CAPTION = 'sOU BASIC';
 export { panelSettings, sceneFor, SCENES } from './model/panel.js';
 const phases = Object.freeze({
   warmup: 'WARMUP', freezeTime: 'FREEZE TIME', live: 'LIVE', over: 'ROUND OVER',

@@ -1,12 +1,12 @@
 import { sceneFor } from '../model.js';
 import { Connection, Production, Sponsors } from './components/Common.jsx';
-import { KillFeed, LiveMeta, RoundHistory, RoundSituation, Scoreboard } from './components/Match.jsx';
+import { KillFeed, MapSeries, RoundHistory, Scoreboard } from './components/Match.jsx';
 import { ObservedPlayer, Roster } from './components/Players.jsx';
 import { Radar } from './components/Radar.jsx';
 import { Break, Lineups, Postmatch, Prematch, Spotlight, Statistics, Veto } from './views/Scenes.jsx';
 
 function Live({ state }) {
-  return <><Scoreboard state={state} /><LiveMeta state={state} /><Radar state={state} /><KillFeed state={state} /><RoundHistory state={state} /><RoundSituation state={state} />
+  return <><Scoreboard state={state} /><Radar state={state} /><KillFeed state={state} /><RoundHistory state={state} />{state.settings.showSeries && <MapSeries state={state} compact />}
     {!state.snapshot?.game && <p className="waiting">WAITING FOR GAME DATA</p>}
     <Roster state={state} side="counterTerrorists" /><Roster state={state} side="terrorists" />{state.settings.showObservedPlayer && <ObservedPlayer state={state} />}</>;
 }

@@ -1,7 +1,7 @@
 import { statistic, text } from '../../model.js';
 import { matchOf, playerName, profileFor, seriesWinner, teamLineup } from '../../model/showcase.js';
 import { Competition, Empty, LocalImage, MatchTeams, SceneHeader, ScheduledStart } from '../components/Common.jsx';
-import { MapSeries, VetoList } from '../components/Match.jsx';
+import { MapSeries, RoundHistory, VetoList } from '../components/Match.jsx';
 import { ObservedPlayer, PlayerBadges } from '../components/Players.jsx';
 import { StatisticsTable } from '../components/Statistics.jsx';
 
@@ -31,7 +31,7 @@ export function Postmatch({ state }) {
     <MatchTeams state={state} />{state.settings.showSeries && <MapSeries state={state} />}<p className="results-note">{winner ? 'Series winner follows completed map winners and the reported best-of.' : 'No confirmed series winner supplied by the available results.'}</p></Scene>;
 }
 export function Statistics({ state }) {
-  return <Scene name="statistics"><SceneHeader state={state} title="PLAYER STATISTICS" subtitle={matchOf(state.snapshot)?.name} /><StatisticsTable state={state} /></Scene>;
+  return <Scene name="statistics"><SceneHeader state={state} title="PLAYER STATISTICS" subtitle={matchOf(state.snapshot)?.name} /><StatisticsTable state={state} /><RoundHistory state={state} always /></Scene>;
 }
 export function Spotlight({ state }) {
   const feature = state.settings.feature;

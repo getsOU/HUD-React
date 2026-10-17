@@ -1,8 +1,22 @@
 # Third-party notices
 
-This HUD's own code is MIT licensed; see `LICENSE`. Bundled Counter-Strike 2
-artwork is separately owned and is **not covered by that MIT license**. No GPL
-broadcast HUD layout, renderer, asset bundle or projection table is included.
+This HUD project is distributed under **GPL-3.0-only** from 0.4.0; see `LICENSE`
+and `LICENSING.md`. Earlier releases through 0.3.0 retain their original MIT
+license. Separately licensed SDK/framework files, Boltobserv's map-specific MIT
+exceptions and Valve artwork retain their own notices.
+
+- **Boltobserv**, boltgolt and contributors, revision
+  `0320883198e438cd6ae9fd490fa310027003727e`. Original ten-map terrain/buyzone/logo
+  PNGs, calibration and projectile/bomb images are included unchanged. Projection,
+  per-object floor splits, marker shape/colors/size, observed/flashed rings and
+  tombstones are adapted to the public sOU v2 contracts in `src/model/boltobserv.js`
+  and `src/ui/components/Radar.jsx`, with derived styling in `src/styles.css`.
+  The original GPLv3 text, Ancient/Anubis MIT exceptions, complete original source
+  archive and file-by-file SHA-256 inventory ship under `licenses/`.
+  See [Boltobserv notice](licenses/BOLTOBSERV-NOTICE.md) and
+  [provenance inventory](licenses/boltobserv-origins.json). Map artwork reflects
+  the pinned original revision; it is not a claim that every later CS2 geometry
+  change is already included. No upstream server, sockets or remote services run.
 
 - **sOU JavaScript HUD SDK and generated contracts**, 0.2.0-preview.4, copyright
   2026 sofc, MIT. The unchanged files under `public/sdk` come from the public
@@ -40,10 +54,11 @@ as whole packages in the HUD. Their versions and integrity hashes are locked
 in `package-lock.json`; their individual license notices remain in npm.
 
 The built package stores the SDK at `wwwroot/sdk` and includes this notice,
-the HUD license, the SDK license, React/React DOM/Scheduler/he licenses and the
-separate Valve notice/provenance manifest under `licenses/`. Bundled game
+the HUD license, licensing scope, the SDK license, React/React DOM/Scheduler/he
+licenses, Boltobserv licenses/source/provenance and the separate Valve
+notice/provenance manifest under `licenses/`. Bundled game
 artwork lives under `wwwroot/assets/`; the factual catalog and original overview
-definitions accompany the PNGs. The MIT code that reads, selects and projects
-these assets does not change the artwork's rights. Separately selected player,
+definitions accompany the PNGs. This project's GPL distribution does not change
+separate artwork rights or the SDK's MIT license. Separately selected player,
 team or sponsor images retain their own rights. Use of sOU or Counter-Strike
 names grants no separate trademark rights.

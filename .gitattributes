@@ -5,3 +5,5 @@ licenses/SOU-SDK-MIT.txt -text -whitespace
 *.png binary
 # Preserve original game assets byte for byte against the provenance inventory.
 public/assets/** -text
+public/assets/boltobserv/** -whitespace
+licenses/BOLTOBSERV* -text -whitespace

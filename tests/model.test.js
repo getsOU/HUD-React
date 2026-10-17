@@ -22,7 +22,7 @@ test('missing and invalid values remain unknown, zero remains meaningful', () =>
 });
 
 test('panel absence is visible; only explicit true hide flags hide content', () => {
-  assert.deepEqual(coreSettings(null), { caption: 'sOU BASIC', showRosters: true, showObservedPlayer: true });
+  assert.deepEqual(coreSettings(null), { caption: '', showRosters: true, showObservedPlayer: true });
   assert.deepEqual(coreSettings({ values: { display: { caption: '  Finals  ', hideRosters: true, hideObservedPlayer: true } } }),
     { caption: 'Finals', showRosters: false, showObservedPlayer: false });
   assert.equal(panelSettings({ values: { display: { hideRosters: 'true', hideObservedPlayer: 1 } } }).showRosters, true);

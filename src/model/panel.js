@@ -13,7 +13,7 @@ export function panelSettings(state) {
   const radar = values?.radar;
   const visible = field => display?.[field] !== true;
   return {
-    caption: string(display?.caption) || 'sOU BASIC',
+    caption: string(display?.caption),
     scene: SCENES.includes(display?.scene) ? display.scene : 'live',
     showRosters: visible('hideRosters'), showObservedPlayer: visible('hideObservedPlayer'),
     showRadar: visible('hideRadar'), showKillfeed: visible('hideKillfeed'), showEconomy: visible('hideEconomy'),

@@ -1,4 +1,6 @@
-const safePath = path => typeof path === 'string' && /^assets\/[a-z0-9_/-]+\.(?:svg|png|json)$/.test(path) && !path.includes('..');
+const safePath = path => typeof path === 'string' && /^assets\/[a-zA-Z0-9_/-]+\.(?:svg|png|webp|json)$/.test(path) && !path.includes('..');
+/** CS2 may report only this documented workshop path; never infer identity from a suffix. */
+export const canonicalMapName = value => typeof value === 'string' ? /^workshop\/[0-9]+\/((?:de|cs)_[a-z0-9_]+)$/.exec(value)?.[1] ?? value : null;
 export function packageAsset(path, base) {
   if (!safePath(path)) return null;
   return base ? new URL(path, base).href : `./${path}`;
@@ -6,8 +8,16 @@ export function packageAsset(path, base) {
 export function readRadarCatalog(payload) {
   if (payload?.schemaVersion !== 1 || !Array.isArray(payload.maps) || payload.maps.length > 64) return [];
   return payload.maps.flatMap(map => {
-    if (!/^(?:de|cs)_[a-z0-9_]+$/.test(map?.map) || !Array.isArray(map.layers) || map.layers.length > 8) return [];
-    const layers = map.layers.filter(layer => typeof layer.id === 'string' && safePath(layer.image) && layer.image.endsWith('.png') &&
+    if (!/^(?:de|cs)_[a-z0-9_]+$/.test(map?.map)) return [];
+    if (map.metadata && typeof map.metadata === 'object') {
+      const metadata = map.metadata;
+      if (!safePath(map.image) || !safePath(map.buyzones) || !safePath(map.logos) || !Number.isFinite(metadata.resolution) || metadata.resolution <= 0 || !Number.isFinite(metadata.resolution * 1024) || !['x', 'y'].every(key => Number.isFinite(metadata.offset?.[key])) || !Array.isArray(metadata.splits) || metadata.splits.length > 8) return [];
+      const splits = metadata.splits.filter(split => ['top', 'bottom'].every(key => Number.isFinite(split?.bounds?.[key])) && split.bounds.top > split.bounds.bottom && ['x', 'y'].every(key => Number.isFinite(split.offset?.[key])));
+      if (splits.length !== metadata.splits.length) return [];
+      return [{ ...map, kind: 'boltobserv', metadata: { ...metadata, splits } }];
+    }
+    if (!Array.isArray(map.layers) || map.layers.length > 8) return [];
+    const layers = map.layers.filter(layer => typeof layer?.id === 'string' && safePath(layer.image) && layer.image.endsWith('.png') &&
       ['width', 'height', 'scale'].every(key => Number.isFinite(layer[key]) && layer[key] > 0) &&
       ['posX', 'posY'].every(key => Number.isFinite(layer[key])) &&
       Number.isFinite(layer.posX + layer.width * layer.scale) && Number.isFinite(layer.posY - layer.height * layer.scale) &&
@@ -18,13 +28,13 @@ export function readRadarCatalog(payload) {
   });
 }
 export function radarLayer(catalog, mapName, z) {
-  const map = catalog?.find(map => map.map === mapName);
+  const map = catalog?.find(map => map.map === canonicalMapName(mapName) && map.kind !== 'boltobserv');
   if (!map) return null;
   const layer = Number.isFinite(z) ? map.layers.find(layer => (layer.minZ == null || z >= layer.minZ) && (layer.maxZ == null || z < layer.maxZ)) : null;
   const selected = layer ?? map.layers.find(layer => layer.id === 'main') ?? map.layers[0];
   return { ...selected, sites: map.sites ?? [] };
 }
-export async function loadRadarCatalog(base, signal, fetchImpl = fetch) {
+async function loadCatalogFile(path, base, signal, fetchImpl) {
   const controller = new AbortController();
   const abort = () => controller.abort();
   signal.addEventListener('abort', abort, { once: true });
@@ -32,7 +42,7 @@ export async function loadRadarCatalog(base, signal, fetchImpl = fetch) {
   let reader;
   try {
     if (signal.aborted) return [];
-    const response = await fetchImpl(packageAsset('assets/radar/catalog.json', base), { signal: controller.signal, credentials: 'same-origin', cache: 'force-cache', redirect: 'error' });
+    const response = await fetchImpl(packageAsset(path, base), { signal: controller.signal, credentials: 'same-origin', cache: 'force-cache', redirect: 'error' });
     if (!response.ok || !response.body?.getReader) return [];
     reader = response.body.getReader();
     let size = 0, body = '';
@@ -47,6 +57,13 @@ export async function loadRadarCatalog(base, signal, fetchImpl = fetch) {
     return readRadarCatalog(JSON.parse(body + decoder.decode()));
   } catch { return []; }
   finally { clearTimeout(timeout); signal.removeEventListener('abort', abort); if (reader) { await reader.cancel().catch(() => {}); reader.releaseLock(); } }
+}
+export async function loadRadarCatalog(base, signal, fetchImpl = fetch) {
+  const [boltobserv, fallback] = await Promise.all([
+    loadCatalogFile('assets/boltobserv/catalog.json', base, signal, fetchImpl),
+    loadCatalogFile('assets/radar/catalog.json', base, signal, fetchImpl),
+  ]);
+  return [...boltobserv, ...fallback];
 }
 
 export const rawWeapon = weapon => typeof weapon === 'string' ? weapon.replace(/^weapon_/i, '').toLowerCase() : rawWeapon(weapon?.name ?? '');

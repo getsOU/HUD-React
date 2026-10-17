@@ -7,6 +7,9 @@ import { createPreviewClient } from '../src/preview/fixture.js';
 import { adaptOptions } from '../src/model/metadata.js';
 import { panelSettings, SCENES } from '../src/model/panel.js';
 import manifest from '../hud.json' with { type: 'json' };
+import boltCatalog from '../public/assets/boltobserv/catalog.json' with { type: 'json' };
+import { readRadarCatalog } from '../src/model/assets.js';
+import { createRadarFlashTracker } from '../src/model/radar-flashes.js';
 
 let server, Hud;
 before(async () => {
@@ -24,19 +27,20 @@ function fixture(scene) {
   stop(); lifetime.abort();
   return { snapshot, settings: panelSettings(panel), metadata: adaptOptions(client.options, snapshot),
     now: Date.now(), media: client.media, liveStatus: 'connected', panelStatus: 'connected', preview: true,
-    radarTimelineAccepted: true, lowerThirdVisible: false };
+    radarCatalog: readRadarCatalog(boltCatalog), radarFlashes: createRadarFlashTracker().update(snapshot, Date.now()), radarTimelineAccepted: true, lowerThirdVisible: false };
 }
 
 for (const scene of SCENES) test(`${scene} view renders real components with the complete synthetic contract`, () => {
   const address = `http://127.0.0.1/hud-packages/${manifest.id}/${manifest.version}/${scene === 'live' ? '' : `views/${scene}`}`;
   const html = renderToStaticMarkup(createElement(Hud, { state: fixture(scene), address }));
   assert.ok(html.includes(`sOU Showcase HUD · ${scene}`));
-  assert.ok(html.includes('EXAMPLE CHAMPIONSHIP'));
+  assert.ok(html.includes(scene === 'live' ? 'sOU BASIC · PREVIEW' : 'EXAMPLE CHAMPIONSHIP'));
   assert.doesNotMatch(html, /NaN|undefined|\[object Object\]|OPTIONS\.CAPTION/);
   if (scene === 'lineups') assert.ok(html.includes('Example CT 1'));
   if (scene === 'postmatch') assert.ok(html.includes('EXAMPLE ALPHA WIN THE SERIES'));
   if (scene === 'live') {
-    for (const label of ['World position radar', 'Killfeed', 'Round history', 'Observed player', 'counterTerrorists economy']) assert.ok(html.includes(label), label);
+    for (const label of ['World position radar', 'Killfeed', 'Observed player', 'counterTerrorists economy']) assert.ok(html.includes(label), label);
+    assert.ok(!html.includes('Round history'));
   }
 });
 
@@ -73,4 +77,79 @@ test('offline Spotlight keeps a saved reference name encoded literally as profil
   const html = renderToStaticMarkup(createElement(Hud, { state, address: 'http://localhost/pkg/views/spotlight' }));
   assert.ok(html.includes('<h2>Profile &amp;amp; Name</h2>'));
   assert.ok(html.includes('No matching live player statistics supplied'));
+});
+
+const renderLive = state => renderToStaticMarkup(createElement(Hud, { state, address: 'http://localhost/pkg/' }));
+test('broadcast header renders one selected caption, central round and no technical metadata strip', () => {
+  const state = fixture('live'); state.settings.caption = 'Chosen broadcast'; state.snapshot.game.roundNumber = 5;
+  const html = renderLive(state);
+  assert.match(html, /broadcast-caption[^>]*>Chosen broadcast<\/p>/);
+  assert.ok(html.includes('ROUND 5')); assert.ok(!html.includes('EXAMPLE CHAMPIONSHIP'));
+  assert.doesNotMatch(html, /class="live-meta|mini-series|class="phase"|class="map"|class="round"/);
+  state.settings.caption = ''; assert.ok(renderLive(state).includes('EXAMPLE CHAMPIONSHIP'));
+  state.snapshot.managedMatch.competition.name = ''; assert.doesNotMatch(renderLive(state), /broadcast-caption|SOU BASIC/);
+});
+test('live history is absent from the DOM except an actual pause and statistics stays independent', () => {
+  const state = fixture('live');
+  state.snapshot.game.roundPhase = 'freezeTime'; state.snapshot.game.countdown.phase = 'freezeTime';
+  assert.match(renderLive(state), /class="round-history"/);
+  for (const phase of ['live', 'bomb', 'defuse', 'over']) {
+    state.snapshot.game.countdown.phase = phase;
+    assert.doesNotMatch(renderLive(state), /class="round-history"/);
+  }
+  const stats = renderToStaticMarkup(createElement(Hud, { state, address: 'http://localhost/pkg/views/statistics' }));
+  assert.match(stats, /class="round-history"/);
+});
+test('missing round number leaves no invented round label and time-expiry uses a clock', () => {
+  const state = fixture('live'); state.snapshot.game.roundNumber = null;
+  assert.doesNotMatch(renderLive(state), /ROUND (?:–|undefined|null)/);
+  state.snapshot.game.roundPhase = 'freezeTime'; state.snapshot.game.countdown.phase = 'freezeTime';
+  state.snapshot.game.roundWins = [{ roundNumber: 1, winner: 'counterTerrorists', reason: 'timeExpired' }, { roundNumber: 2, winner: 'unknown', reason: 'unknown' }];
+  const html = renderLive(state);
+  assert.ok(html.includes('aria-label="Time expired"')); assert.ok(html.includes('aria-label="Unknown round result"'));
+});
+test('compact map cells do not mark Inferno current for a real Dust2 game or publish partial scores', () => {
+  const state = fixture('live'); state.snapshot.game.map = 'de_dust2';
+  state.snapshot.managedMatch.maps = [{ id: 'ancient', number: 1, name: 'Ancient', gameName: 'de_ancient', status: 'completed', scoreA: 13, scoreB: 8 }, { id: 'inferno', number: 2, name: 'Inferno', gameName: 'de_inferno', status: 'live', scoreA: 3, scoreB: null }];
+  const html = renderLive(state);
+  assert.match(html, /class="live-map-series"/); assert.doesNotMatch(html, /aria-current="step"|3:–|13:–/);
+  state.snapshot.game.map = 'de_inferno'; assert.match(renderLive(state), /aria-current="step"/);
+});
+test('original radar terrain is transparent with actual active marker and no technical captions', () => {
+  const state = fixture('live'); state.snapshot.game.map = 'de_dust2';
+  const html = renderLive(state);
+  assert.match(html, /class="radar boltobserv"/); assert.match(html, /assets\/boltobserv\/maps\/de_dust2\/radar\.png/);
+  assert.match(html, /class="bolt-player [^"]*active/);
+  assert.doesNotMatch(html, /radar-base|radar-grid|<header><strong>de_dust2|<p>.*GSI|overlay_buyzones/);
+  state.snapshot.game.roundPhase = 'freezeTime'; state.snapshot.game.countdown.phase = 'freezeTime';
+  assert.match(renderLive(state), /overlay_buyzones\.png/);
+});
+test('unknown maps use a compact availability indicator instead of an invented positions grid', () => {
+  const state = fixture('live'); state.snapshot.game.map = 'de_unknown';
+  const html = renderLive(state);
+  assert.match(html, /class="radar-unavailable"/); assert.doesNotMatch(html, /radar-grid|class="radar "/);
+});
+test('deployed smoke has its original effect circle without a flying icon; exploded bomb is absent', () => {
+  const state = fixture('live');
+  state.snapshot.game.grenades = [{ id: 'smoke', type: 'smoke', position: { ...state.snapshot.game.players[0].position }, ownerSteamId: state.snapshot.game.players[0].steamId, effectTimeSeconds: 3 }];
+  state.snapshot.game.bomb.state = 'exploded';
+  const html = renderLive(state);
+  assert.match(html, /class="bolt-smoke ct"/);
+  assert.doesNotMatch(html, /projectile-img-smoke|bomb-dropped\.webp|bomb-planted\.webp|bomb-defused\.webp/);
+  for (const effectTimeSeconds of [0, null]) {
+    state.snapshot.game.grenades[0].effectTimeSeconds = effectTimeSeconds;
+    const flying = renderLive(state);
+    assert.match(flying, /projectile-img-smoke-CT\.webp/); assert.doesNotMatch(flying, /class="bolt-smoke/);
+  }
+});
+test('real flash lifetime controls the effect without requiring a smoke effect timer', () => {
+  const state = fixture('live');
+  state.snapshot.game.grenades = [{ id: 'flash', type: 'flashbang', position: { ...state.snapshot.game.players[0].position }, ownerSteamId: state.snapshot.game.players[0].steamId, lifetimeSeconds: 1.5, effectTimeSeconds: null }];
+  state.radarFlashes = createRadarFlashTracker().update(state.snapshot, state.now);
+  const detonated = renderLive(state);
+  assert.match(detonated, /class="bolt-flash pending"/); assert.doesNotMatch(detonated, /projectile-img-flashbang/);
+  state.snapshot.game.grenades[0].lifetimeSeconds = .5;
+  state.radarFlashes = [];
+  const flying = renderLive(state);
+  assert.match(flying, /projectile-img-flashbang-CT\.webp/); assert.doesNotMatch(flying, /class="bolt-flash/);
 });

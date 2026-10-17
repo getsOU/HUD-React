@@ -32,7 +32,7 @@ test('shipped panel schema uses independent hide checkboxes with visible host de
   assert.equal(display.inputs.some(field => ['showRosters', 'showObservedPlayer'].includes(field.name)), false);
   const state = hostState();
   assert.ok(Object.entries(state.values.display).every(([key, value]) => key.startsWith('hide') ? value === false : value === ''));
-  assert.deepEqual(coreSettings(state), { caption: 'sOU BASIC', showRosters: true, showObservedPlayer: true });
+  assert.deepEqual(coreSettings(state), { caption: '', showRosters: true, showObservedPlayer: true });
   const settings = panelSettings(state);
   for (const key of ['showRadar', 'showKillfeed', 'showEconomy', 'showRoundHistory', 'showSeries', 'showSponsors']) assert.equal(settings[key], true);
 });
@@ -45,10 +45,10 @@ test('caption-only save keeps both components visible after host normalization',
 test('hide fields are independent and saving false makes each component visible again', () => {
   const options = (hideRosters, hideObservedPlayer) =>
     coreSettings(hostState({ display: { hideRosters, hideObservedPlayer } }, 2));
-  assert.deepEqual(options(true, false), { caption: 'sOU BASIC', showRosters: false, showObservedPlayer: true });
-  assert.deepEqual(options(false, true), { caption: 'sOU BASIC', showRosters: true, showObservedPlayer: false });
-  assert.deepEqual(options(true, true), { caption: 'sOU BASIC', showRosters: false, showObservedPlayer: false });
-  assert.deepEqual(options(false, false), { caption: 'sOU BASIC', showRosters: true, showObservedPlayer: true });
+  assert.deepEqual(options(true, false), { caption: '', showRosters: false, showObservedPlayer: true });
+  assert.deepEqual(options(false, true), { caption: '', showRosters: true, showObservedPlayer: false });
+  assert.deepEqual(options(true, true), { caption: '', showRosters: false, showObservedPlayer: false });
+  assert.deepEqual(options(false, false), { caption: '', showRosters: true, showObservedPlayer: true });
 });
 
 test('compatible caption survives a version update while legacy visibility fields are ignored', () => {

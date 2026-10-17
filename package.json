@@ -1,9 +1,9 @@
 {
   "name": "sou-hud-react",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "description": "A complete transparent CS2 broadcast HUD using React and the public sOU HUD SDK.",
   "engines": {
     "node": ">=22.13.0"

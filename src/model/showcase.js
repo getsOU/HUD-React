@@ -1,7 +1,8 @@
 import { number, roster, sideTeam, text } from '../model.js';
 import { metadataKey } from './metadata.js';
-import { radarLayer } from './assets.js';
+import { canonicalMapName, radarLayer } from './assets.js';
 import { sourceName } from './source-name.js';
+import { boltMarkerScale, boltPoint } from './boltobserv.js';
 export { SCENES, sceneFor } from './panel.js';
 
 export const matchOf = snapshot => snapshot?.managedMatch ?? snapshot?.game?.managedMatch ?? null;
@@ -97,8 +98,8 @@ export function killEntries(snapshot) {
 const point = value => value && ['x', 'y', 'z'].every(key => typeof value[key] === 'number' && Number.isFinite(value[key]));
 const numeric = value => typeof value === 'string' && value.trim().length ? Number(value) : NaN;
 
-/** Original MIT geometry. Relative world positions are not presented as a calibrated map. */
-export function radarView(snapshot, config = {}, now = Date.now(), timelineAccepted = true, catalog = []) {
+/** Public source/timeline adapter; Boltobserv geometry is attributed in model/boltobserv.js. */
+export function radarView(snapshot, config = {}, now = Date.now(), timelineAccepted = true, catalog = [], radarFlashes = []) {
   const game = snapshot?.game;
   const radar = game?.radar;
   const received = Date.parse(radar?.receivedAt);
@@ -124,8 +125,9 @@ export function radarView(snapshot, config = {}, now = Date.now(), timelineAccep
     Number.isFinite(limits.maxX - limits.minX) && Number.isFinite(limits.maxY - limits.minY) && limits.maxX > limits.minX && limits.maxY > limits.minY);
   const observedPose = poses.get(game?.observedPlayer?.steamId);
   const observedZ = point(observedPose?.position) ? observedPose.position.z : game?.observedPlayer?.position?.z;
-  const layer = custom ? null : radarLayer(catalog, game?.map, observedZ);
-  const calibrated = custom || layer !== null;
+  const bolt = custom ? null : catalog.find(map => map.map === canonicalMapName(game?.map) && map.kind === 'boltobserv');
+  const layer = custom || bolt ? null : radarLayer(catalog, game?.map, observedZ);
+  const calibrated = custom || layer !== null || Boolean(bolt);
   let bounds = limits;
   if (layer) bounds = { minX: layer.posX, maxX: layer.posX + layer.width * layer.scale, maxY: layer.posY, minY: layer.posY - layer.height * layer.scale };
   if (!calibrated) {
@@ -138,8 +140,10 @@ export function radarView(snapshot, config = {}, now = Date.now(), timelineAccep
   }
   const project = position => {
     if (!point(position)) return null;
-    const x = (position.x - bounds.minX) / (bounds.maxX - bounds.minX) * 100;
-    const y = (bounds.maxY - position.y) / (bounds.maxY - bounds.minY) * 100;
+    const { x, y } = bolt ? boltPoint(position, bolt.metadata) : {
+      x: (position.x - bounds.minX) / (bounds.maxX - bounds.minX) * 100,
+      y: (bounds.maxY - position.y) / (bounds.maxY - bounds.minY) * 100,
+    };
     return x >= 0 && x <= 100 && y >= 0 && y <= 100 ? { x, y } : null;
   };
   const projected = players.flatMap(marker => {
@@ -147,15 +151,21 @@ export function radarView(snapshot, config = {}, now = Date.now(), timelineAccep
     if (!at) return [];
     const forward = marker.forward;
     const direction = point(forward) && (forward.x !== 0 || forward.y !== 0)
-      ? Math.atan2(-forward.y / (bounds.maxY - bounds.minY), forward.x / (bounds.maxX - bounds.minX)) * 180 / Math.PI : null;
-    return [{ ...marker, ...at, direction, otherFloor: layer && ((layer.minZ != null && marker.position.z < layer.minZ) || (layer.maxZ != null && marker.position.z >= layer.maxZ)) }];
+      ? bolt ? Math.atan2(-forward.y, forward.x) * 180 / Math.PI : Math.atan2(-forward.y / (bounds.maxY - bounds.minY), forward.x / (bounds.maxX - bounds.minX)) * 180 / Math.PI : null;
+    return [{ ...marker, ...at, direction, scale: bolt ? boltMarkerScale(marker.position.z, bolt.metadata) : .7,
+      observed: Boolean(marker.player.steamId && marker.player.steamId === game?.observedPlayer?.steamId),
+      flashed: number(marker.player.flashed) > 31, bombCarrier: hasBomb(marker.player) || Boolean(marker.player.steamId && game?.bomb?.state === 'carried' && game.bomb.playerSteamId === marker.player.steamId),
+      otherFloor: layer && ((layer.minZ != null && marker.position.z < layer.minZ) || (layer.maxZ != null && marker.position.z >= layer.maxZ)) }];
   });
   const hlaePlayers = players.filter(player => player.usesHlae).length;
-  return { calibrated, overview: custom ? config.overview : layer?.image ?? null, packagedOverview: Boolean(layer), layer: layer?.id, sites: layer?.sites ?? [],
+  return { calibrated, kind: bolt ? 'boltobserv' : custom ? 'custom' : layer ? 'valve' : 'unavailable',
+    overview: custom ? config.overview : bolt?.image ?? layer?.image ?? null, packagedOverview: Boolean(bolt || layer), layer: layer?.id, sites: layer?.sites ?? [],
+    buyzones: bolt?.buyzones ?? null, logos: bolt?.logos ?? null, worldUnitScale: bolt ? 100 / (bolt.metadata.resolution * 1024) : 100 / (bounds.maxX - bounds.minX),
     source: hlaePlayers > 0 ? hlaePlayers === players.length ? 'HLAE · fresh' : 'HLAE + GSI' : 'GSI',
-    label: calibrated ? `${text(game.map)} · ${custom ? 'configured overview' : layer.id}` : 'Map unavailable · relative positions', players: projected,
+    label: calibrated ? bolt ? `${bolt.name} · Boltobserv` : `${text(game.map)} · ${custom ? 'configured overview' : layer.id}` : 'Map unavailable · relative positions', players: projected,
     bomb: bomb && project(bomb.position) ? { ...bomb, ...project(bomb.position) } : null,
-    grenades: grenades.flatMap(grenade => { const at = project(grenade.position); return at ? [{ ...grenade, ...at }] : []; }),
+    grenades: grenades.flatMap(grenade => { const at = project(grenade.position); return at ? [{ ...grenade, ...at, side: game.players?.find(player => player.steamId === grenade.ownerSteamId)?.side }] : []; }),
+    flashes: radarFlashes.flatMap(flash => { const at = project(flash.position); return at ? [{ ...flash, ...at }] : []; }),
     flames: flames.flatMap(flame => { const at = project(flame.position); return at ? [{ ...at, id: flame.key }] : []; }) };
 }
 

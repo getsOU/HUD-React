@@ -88,3 +88,17 @@ test('client initialization failure yields a safe local message and can remount'
   assert.equal(store.getSnapshot().message, 'Open this HUD from sOU to connect');
   unsubscribe();
 });
+
+test('actual store binds flash pulses to accepted source lifetimes and clears final disposal', async () => {
+  const { store, calls } = fixture(); const unsubscribe = store.subscribe(() => {});
+  await tick();
+  const game = { map: 'de_example', roundNumber: 1, grenades: [{ id: 'flash', type: 'flashbang', lifetimeSeconds: 1.5, effectTimeSeconds: null, position: { x: 0, y: 0, z: 0 } }] };
+  calls[0].receive(snapshot('one', 1, game));
+  assert.equal(store.getSnapshot().radarFlashes.length, 1);
+  const startedAt = store.getSnapshot().radarFlashes[0].startedAt;
+  calls[0].receive(snapshot('one', 2, game)); assert.equal(store.getSnapshot().radarFlashes[0].startedAt, startedAt);
+  calls[0].receive(snapshot('one', 1, { ...game, roundNumber: 99 })); assert.equal(store.getSnapshot().snapshot.game.roundNumber, 1);
+  calls[0].receive(snapshot('one', 3, { ...game, roundNumber: 2, grenades: [] })); assert.deepEqual(store.getSnapshot().radarFlashes, []);
+  unsubscribe(); assert.deepEqual(store.getSnapshot().radarFlashes, []);
+  calls[0].receive(snapshot('late', 4, game)); assert.deepEqual(store.getSnapshot().radarFlashes, []);
+});

@@ -1,60 +1,50 @@
-sOU Showcase HUD · React 0.3.0
+sOU Broadcast HUD · React 0.4.0
 
-Compact Live with automatic map radar and local weapon/equipment icons. The
-package ID remains sou-basic-react; all eight views remain available: Live,
-Prematch, Lineups, Map veto, Break, Results, Statistics and Spotlight.
+Original Boltobserv radar and a clear broadcast header. The stable package ID
+remains sou-basic-react, and all eight Live/presentation views remain available.
 
-- Fixed 1920 × 1080 reference composition scales proportionally: compact edge
-  header, five two-line cards per side, economy footers, small observer card,
-  series/history indicators, sponsor rail and bounded real-event killfeed.
-- Active weapons, utility, armor/helmet/kit/bomb and killfeed flags use local
-  icons instead of technical inventory text boxes. Detailed equipment, round
-  statistics and recording coverage stay in the presentation views.
-- Automatic calibrated overviews for 14 exact map identifiers, including Dust2;
-  17 local PNGs include explicit lower-floor layers. Fresh compatible HLAE data
-  takes priority over GSI. A valid local custom override still takes priority;
-  unknown or failed maps are explicitly labeled relative-position fallbacks.
-- Missing optional Live portraits/logos leave no replacement box. Presentation
-  views retain neutral image fallbacks. Source player-name entities decode once
-  as ordinary text; profile/operator text is unchanged.
-- Actual match/series/veto/results and competition branding, including before GSI.
-- Recorded-stat coverage, optional matching local roster/portrait metadata and
-  safe SDK-resolved media; missing values and identities remain explicit.
-- Complete HUD panel with scene selection, Hide controls, featured references,
-  local branding, manual ticker/status labels and a deduplicated lower-third
-  Show/Hide action that is not replayed on reconnect.
-- Separate pure selectors, shared live/panel lifetime, reset on session change,
-  explicit synthetic development previews and production packages without fixtures.
+- Original Boltobserv terrain, buyzones, logos and per-map calibration for ten
+  exact map names, including Dust2. Original directional droplets, upright slots,
+  observed-player ring, flashed state, bomb carrier, death crosses and local
+  projectile/bomb artwork. No opaque radar square or technical captions.
+- Nuke and Vertigo use the original combined images with split offsets per
+  player/object, not a whole-image floor switch. Original logical dimensions,
+  strict split boundaries and height scaling are preserved. Actual supplied smoke,
+  flash and fire use original world dimensions. Smoke uses positive effect time,
+  Flash uses lifetime >=1.4 seconds; deployed effects stop displaying a flying
+  projectile. Flash IDs keep one bounded 100/1200/2200 ms pulse without extending
+  on repeated snapshots; session/map/round changes clear it. Exploded bombs disappear.
+- One chosen header caption, otherwise the competition name. Central ROUND 5 or
+  the actual bomb/defuse/timeout/pause state; no invented unknown round number.
+  No raw map ID, enum phase or concatenated best-of/map metadata strip.
+- Series-win pips follow the actual managed team through side changes. Compact
+  ordered map cells sit below the radar; only complete completed results appear,
+  and only an exact actual map match receives a current-map highlight. A real
+  Dust2 game does not pretend to be a configured Inferno series map.
+- Numbered round history appears only during Freeze, Pause, team timeout and
+  Intermission. It is absent during active play, bomb/defuse and round over.
+  Time expiry has a clock; unknown reasons remain neutral. Statistics can show
+  all supplied results independently.
 
-The public SOU.Hud.Templates and SOU.Hud.Tool NuGet packages remain pinned to
-0.2.0-preview.4. The browser SDK files are unchanged and hash verified. MIT applies
-to this HUD's own code; all SDK/SignalR/React/he notices ship with the archive.
-Original CS2 equipment/UI/killfeed graphics, overviews and calibration are
-separately attributed to Valve Corporation and the respective creators; they
-are not relicensed as MIT. licenses/VALVE-ASSETS.md and licenses/valve-assets.json
-document the source game build, original entries and hashes and ship with the
-package. No GPL HUD assets or renderers are copied.
+This HUD project is GPL-3.0-only from 0.4.0 following the explicit license decision
+for original Boltobserv. Earlier releases through 0.3.0 remain unchanged under MIT.
+The public sOU SDK and NuGet packages remain MIT and pinned to 0.2.0-preview.4.
+Original Boltobserv licenses, Ancient/Anubis MIT exceptions, complete upstream
+source ZIP and per-file provenance ship with the package. Separately owned Valve
+artwork and React/SDK dependencies retain their own notices; see LICENSING.md.
 
-Download the .souhud and import it through sOU → HUDs → Paket importieren.
-Use sOU's generated output URL for OBS (1920 × 1080). Select a dedicated subview
-through sOU or set Display → Main output scene for the main output. Leave Hide
-checkboxes unchecked to show their components. The SHA-256 file identifies the
-exact archive; do not compare a download with an independently rebuilt ZIP.
+Import the .souhud through sOU → HUDs → Paket importieren, select sOU Broadcast ·
+React and open a new output for version 0.4.0. Use sOU's output URL for OBS with a
+1920 × 1080 source. Existing tags, packages and settings are preserved; current
+Hide controls and caption are carried over. No new SDK or desktop version is
+needed. Leave radar override fields empty for automatic original map selection.
 
-The visible player defaults from 0.1.2 and transparent canvas correction from
-0.1.1 remain in place. Existing versions, tags, archives and settings are not
-replaced. Install 0.3.0 and open a new output for the new files. Existing panel
-field IDs remain supported; no new SDK or sOU desktop version is required.
+Compact rosters, economy footers, observer card, weapon/equipment icons, actual
+killfeed, sponsors, manual production controls, safe local media and session/
+lifetime guards remain. Missing values, metadata and unknown maps stay explicit.
+There are no guessed rosters, wins, picks/bans, ratings, damage or camera events.
 
-No guessed MVPs, rosters, winners, picks/bans, damage or win probabilities. Leave
-radar override fields empty to use the bundled exact-map catalog. Custom images
-need their own applicable rights and correct world bounds. Game patches may
-require an artwork/calibration update.
-
-Review the actual package over visible gameplay, including all five cards and
-Dust2; a build or checkerboard image alone does not establish live usability.
-Isolated browser checks do not replace native CS2/OBS acceptance. Verify your
-actual GSI/HLAE and broadcast setup before a live cast.
-
-See README for all eight views, every panel field, data sources, limits,
-calibration, public SDK provenance and reproducible build/package commands.
+Review the actual package over visible gameplay. Browser checks and automated
+regressions do not replace native CS2/OBS acceptance for the intended setup.
+See README for all views, panel fields, exact projection, data limits, licensing
+scope and reproducible public SDK build/package instructions.

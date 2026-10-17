@@ -86,11 +86,11 @@ test('packaged catalog request stays at package base and enforces a streamed bod
   const lifetime = new AbortController();
   let called = 0;
   const result = await loadRadarCatalog('http://127.0.0.1/hud-packages/id/0.3.0/', lifetime.signal, async (address, options) => {
-    called++; assert.equal(address, 'http://127.0.0.1/hud-packages/id/0.3.0/assets/radar/catalog.json');
+    called++; assert.match(address, /^http:\/\/127\.0\.0\.1\/hud-packages\/id\/0\.3\.0\/assets\/(?:radar|boltobserv)\/catalog\.json$/);
     assert.equal(options.redirect, 'error'); assert.equal(options.credentials, 'same-origin');
-    return new Response(JSON.stringify(catalogSource));
+    return new Response(JSON.stringify(address.includes('/boltobserv/') ? { schemaVersion: 1, maps: [] } : catalogSource));
   });
-  assert.equal(called, 1); assert.equal(result.length, catalog.length);
+  assert.equal(called, 2); assert.equal(result.length, catalog.length);
   assert.deepEqual(await loadRadarCatalog('http://localhost/pkg/', lifetime.signal, async () => new Response('x'.repeat(128 * 1024 + 1))), []);
 });
 test('disposing the output aborts an in-flight catalog load and degrades cleanly', async () => {
