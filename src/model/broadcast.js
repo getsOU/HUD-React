@@ -23,6 +23,20 @@ export function seriesPips(snapshot, side) {
 const mapNames = Object.freeze({ de_dust2: 'Dust II', de_mirage: 'Mirage', de_inferno: 'Inferno', de_nuke: 'Nuke', de_ancient: 'Ancient', de_anubis: 'Anubis', de_vertigo: 'Vertigo', de_train: 'Train', de_overpass: 'Overpass', de_cache: 'Cache', de_cbble: 'Cobblestone', cs_office: 'Office', cs_italy: 'Italy' });
 export const friendlyMapName = map => text(map.name, mapNames[canonicalMapName(map.gameName)] ?? text(map.gameName, 'Map'));
 
+/** Resolve only an explicit, unambiguous veto identity; score, side and list order are never a pick. */
+export function mapPick(snapshot, map) {
+  const match = matchOf(snapshot);
+  const decisions = (match?.vetos ?? []).filter(veto => map.id && veto.mapId === map.id);
+  if (decisions.length !== 1) return { label: 'Pick unknown', description: 'No unambiguous pick decision supplied' };
+  const decision = decisions[0];
+  if ((decision.playNumber != null && decision.playNumber !== map.number) || (decision.gameName && map.gameName && canonicalMapName(decision.gameName) !== canonicalMapName(map.gameName))) return { label: 'Pick unknown', description: 'Conflicting map decision' };
+  if (decision.type === 'decider') return { label: 'DECIDER', description: 'Decider map' };
+  if (decision.type !== 'pick') return { label: 'Pick unknown', description: 'No pick decision supplied' };
+  const team = [match.teamA, match.teamB].find(team => team?.id && team.id === decision.teamId);
+  if (!team || match.teamA?.id === match.teamB?.id) return { label: 'Pick unassigned', description: 'Pick team not assigned' };
+  return { label: `PICK · ${text(team.shortName, team.name)}`, description: `Picked by ${team.name}` };
+}
+
 /** Map identity must agree with the real game; configured status/order alone cannot identify it. */
 export function liveSeries(snapshot) {
   return mapSeries(snapshot).slice(0, 9).map(map => ({ ...map, label: friendlyMapName(map),

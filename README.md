@@ -6,7 +6,7 @@ and seven presentation views. Every display uses public protocol-v2 snapshots, o
 local profile metadata, or an explicit operator setting. It does not invent
 players, match results, events or statistics.
 
-Current HUD version: **0.4.1**. Package ID: `sou-basic-react`.
+Current HUD version: **0.4.2**. Package ID: `sou-basic-react`.
 
 ![Packaged React HUD with calibrated radar, local icons and compact edge displays over a CS2 reference scene](docs/preview.png)
 
@@ -127,7 +127,7 @@ There are no separate HTML builds or router dependencies.
 
 Open a dedicated subview through sOU's output selection. Relative paths above
 are resolved beneath the installed package root, for example
-`/hud-packages/sou-basic-react/0.4.1/views/veto`. Keep the sOU-generated address,
+`/hud-packages/sou-basic-react/0.4.2/views/veto`. Keep the sOU-generated address,
 browser session and base path. Explicit subviews ignore the main scene selector;
 changing **Main output scene** does not turn a dedicated statistics output into
 another view.
@@ -318,7 +318,7 @@ round. The HUD owns no additional timer per flash.
 Both local catalogs load once per output lifetime from the installed package base,
 each with a three-second timeout, 128 KiB size limit and cancellation on disposal.
 Images load locally; there are no map-service requests. HLAE positions require a
-compatible timeline and an age from 0 through 750 ms; stale/incompatible samples
+compatible timeline and an age from 0 up to (excluding) 750 ms; stale/incompatible samples
 fall back to GSI. Missing positions and directions remain missing. Actual
 calibration and artwork reflect the recorded CS2 build and may need an asset
 update after game patches. See [Boltobserv provenance and complete source](licenses/BOLTOBSERV-NOTICE.md)
@@ -369,8 +369,8 @@ npm run package
 `SOU.Hud.Tool` **0.2.0-preview.4**, then packs and validates:
 
 ```text
-artifacts/sou-basic-react-0.4.1.souhud
-artifacts/sou-basic-react-0.4.1.souhud.sha256
+artifacts/sou-basic-react-0.4.2.souhud
+artifacts/sou-basic-react-0.4.2.souhud.sha256
 ```
 
 `npm run build` creates `dist/hud.json` and `dist/wwwroot` without packaging.
@@ -551,3 +551,9 @@ pull-request builds retain artifacts without publishing a release. Guards bind
 the repository, event, tag, manifest and archive hash; existing releases are not
 replaced. Only the release job has the short-lived write token needed to create
 assets; no personal token or NuGet publication credential is required.
+
+## Radar movement and pick ownership (0.4.2)
+
+Radar motion follows NYXIA: short 50 ms linear transitions, stable player identity and immediate resets across source/session/map/round/floor changes. A fresh HLAE frame supplies all player positions; missing pawns are omitted rather than mixed with older GSI. At 750 ms the whole frame expires and existing GSI positions may be used. The HUD clock advances every 50 ms; WASM also updates it when receiving a snapshot. No positions are extrapolated.
+
+Live and full map series display the explicit pick team from the corresponding veto identity, or DECIDER. Pick ownership stays with TeamId through CT/T changes; absent, foreign or conflicting assignments remain unresolved. See CHANGELOG.md for earlier corrections.

@@ -293,8 +293,7 @@ test('missing Steam IDs cannot join an unrelated HLAE pose onto an unidentified 
   source.game.players[0].steamId = null;
   source.game.radar.players[0].steamId = null;
   const view = radarView(source, radarConfig, radarTime);
-  assert.equal(view.players[0].x, 25);
-  assert.equal(view.players[0].y, 25);
+  assert.deepEqual(view.players, [], 'unidentified pawns have no stable radar identity and do not fall back into fresh HLAE');
 });
 
 test('reported fire positions remain renderable when an inferno has no single center position', () => {

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.2
+
+- Match NYXIA radar motion and coherent HLAE source selection; correct the WASM receipt clock.
+- Show explicit pick teams and deciders in all map-series displays, without guessing missing decisions.
+
 ## 0.4.1
 
 - Dead players no longer display stale active weapons, ammunition or inventory

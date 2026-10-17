@@ -104,16 +104,19 @@ export function radarView(snapshot, config = {}, now = Date.now(), timelineAccep
   const radar = game?.radar;
   const received = Date.parse(radar?.receivedAt);
   const age = now - received;
-  const fresh = timelineAccepted && radar && Number.isFinite(age) && age >= 0 && age <= 750 &&
+  const fresh = timelineAccepted && radar && Number.isFinite(age) && age >= 0 && age < 750 &&
     typeof radar.connectionId === 'string' && radar.connectionId.length > 0 && Number.isInteger(radar.epoch) && radar.epoch >= 0 &&
     Number.isInteger(radar.sequence) && radar.sequence >= 0 && Number.isFinite(radar.gameTimeSeconds);
   const poses = new Map(fresh && Array.isArray(radar.players) ? radar.players
     .filter(p => typeof p?.steamId === 'string' && p.steamId.length > 0).map(p => [p.steamId, p]) : []);
-  const players = (Array.isArray(game?.players) ? game.players : []).flatMap((player, index) => {
+  const motionContext = [snapshot?.sessionId, game?.map, game?.roundNumber, game?.roundPhase === 'freezeTime', fresh ? radar.connectionId : 'gsi', fresh ? radar.epoch : '', config.overview, config.minX, config.maxX, config.minY, config.maxY].join('|');
+  const players = (Array.isArray(game?.players) ? game.players : []).flatMap(player => {
+    if (typeof player.steamId !== 'string' || !player.steamId) return [];
     const pose = poses.get(player.steamId);
-    const position = point(pose?.position) ? pose.position : player.position;
-    return point(position) ? [{ player, key: `${player.steamId ?? 'unknown'}-${index}`, position, usesHlae: point(pose?.position),
-      forward: point(pose?.forward) ? pose.forward : player.forward, dead: (number(pose?.health) ?? number(player.health)) === 0 }] : [];
+    // Match NYXIA: fresh HLAE is a coherent frame, never a per-player GSI/HLAE mixture.
+    const position = fresh ? pose?.position : player.position;
+    return point(position) ? [{ player, key: player.steamId, position, usesHlae: Boolean(fresh),
+      forward: fresh ? pose?.forward : player.forward, dead: (number(pose?.health) ?? number(player.health)) === 0 }] : [];
   });
   const bomb = point(game?.bomb?.position) ? game.bomb : null;
   const allGrenades = (Array.isArray(game?.grenades) ? game.grenades : []).filter(Boolean);
@@ -152,16 +155,16 @@ export function radarView(snapshot, config = {}, now = Date.now(), timelineAccep
     const forward = marker.forward;
     const direction = point(forward) && (forward.x !== 0 || forward.y !== 0)
       ? bolt ? Math.atan2(-forward.y, forward.x) * 180 / Math.PI : Math.atan2(-forward.y / (bounds.maxY - bounds.minY), forward.x / (bounds.maxX - bounds.minX)) * 180 / Math.PI : null;
-    return [{ ...marker, ...at, direction, scale: bolt ? boltMarkerScale(marker.position.z, bolt.metadata) : .7,
+    const floor = bolt ? bolt.metadata.splits.findIndex(split => marker.position.z > split.bounds.bottom && marker.position.z < split.bounds.top) : layer?.id;
+    return [{ ...marker, ...at, direction, motionKey: [motionContext, bolt?.image ?? layer?.image, floor, marker.dead, marker.key].join('|'), scale: bolt ? boltMarkerScale(marker.position.z, bolt.metadata) : .7,
       observed: Boolean(marker.player.steamId && marker.player.steamId === game?.observedPlayer?.steamId),
       flashed: number(marker.player.flashed) > 31, bombCarrier: hasBomb(marker.player) || Boolean(marker.player.steamId && game?.bomb?.state === 'carried' && game.bomb.playerSteamId === marker.player.steamId),
       otherFloor: layer && ((layer.minZ != null && marker.position.z < layer.minZ) || (layer.maxZ != null && marker.position.z >= layer.maxZ)) }];
   });
-  const hlaePlayers = players.filter(player => player.usesHlae).length;
-  return { calibrated, kind: bolt ? 'boltobserv' : custom ? 'custom' : layer ? 'valve' : 'unavailable',
+  return { calibrated, motionContext, kind: bolt ? 'boltobserv' : custom ? 'custom' : layer ? 'valve' : 'unavailable',
     overview: custom ? config.overview : bolt?.image ?? layer?.image ?? null, packagedOverview: Boolean(bolt || layer), layer: layer?.id, sites: layer?.sites ?? [],
     buyzones: bolt?.buyzones ?? null, logos: bolt?.logos ?? null, worldUnitScale: bolt ? 100 / (bolt.metadata.resolution * 1024) : 100 / (bounds.maxX - bounds.minX),
-    source: hlaePlayers > 0 ? hlaePlayers === players.length ? 'HLAE · fresh' : 'HLAE + GSI' : 'GSI',
+    source: fresh ? 'HLAE · fresh' : 'GSI',
     label: calibrated ? bolt ? `${bolt.name} · Boltobserv` : `${text(game.map)} · ${custom ? 'configured overview' : layer.id}` : 'Map unavailable · relative positions', players: projected,
     bomb: bomb && project(bomb.position) ? { ...bomb, ...project(bomb.position) } : null,
     grenades: grenades.flatMap(grenade => { const at = project(grenade.position); return at ? [{ ...grenade, ...at, side: game.players?.find(player => player.steamId === grenade.ownerSteamId)?.side }] : []; }),

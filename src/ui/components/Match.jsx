@@ -1,6 +1,6 @@
 import { clock, money, sideTeam, statistic, teamName, text } from '../../model.js';
 import { economy, killEntries, mapSeries, matchOf, vetoEntries } from '../../model/showcase.js';
-import { broadcastCaption, liveSeries, recentRounds, roundHistoryVisible, roundLabel, seriesPips } from '../../model/broadcast.js';
+import { broadcastCaption, liveSeries, mapPick, recentRounds, roundHistoryVisible, roundLabel, seriesPips } from '../../model/broadcast.js';
 import { Empty, LocalImage } from './Common.jsx';
 import { Icon } from './Icons.jsx';
 import { sourceName } from '../../model/source-name.js';
@@ -27,11 +27,15 @@ export function MapSeries({ state, compact = false }) {
   const maps = mapSeries(state.snapshot);
   const match = matchOf(state.snapshot);
   if (!maps.length) return compact ? null : <Empty>No series maps configured</Empty>;
-  if (compact) return <section className="live-map-series" aria-label="Map series">{liveSeries(state.snapshot).map((map, index) => <article key={`${map.id}-${index}`} className={map.current ? 'current-map' : ''} aria-current={map.current ? 'step' : undefined} title={`${map.label}${map.score ? ` · ${text(match?.teamA?.name, 'Team A')} ${map.score.split(':')[0]}:${map.score.split(':')[1]} ${text(match?.teamB?.name, 'Team B')}` : ''}`}><span>{map.number}</span><strong>{map.label}</strong>{map.score && <b aria-label={`${text(match?.teamA?.name, 'Team A')} ${map.score.split(':')[0]}, ${text(match?.teamB?.name, 'Team B')} ${map.score.split(':')[1]}`}>{map.score}</b>}</article>)}</section>;
+  if (compact) return <section className="live-map-series" aria-label="Map series">{liveSeries(state.snapshot).map((map, index) => {
+    const pick = mapPick(state.snapshot, map);
+    return <article key={`${map.id}-${index}`} className={map.current ? 'current-map' : ''} aria-current={map.current ? 'step' : undefined} title={`${map.label}${map.score ? ` · ${text(match?.teamA?.name, 'Team A')} ${map.score.split(':')[0]}:${map.score.split(':')[1]} ${text(match?.teamB?.name, 'Team B')}` : ''}`}><span>{map.number}</span><strong>{map.label}</strong>{map.score && <b aria-label={`${text(match?.teamA?.name, 'Team A')} ${map.score.split(':')[0]}, ${text(match?.teamB?.name, 'Team B')} ${map.score.split(':')[1]}`}>{map.score}</b>}<small className="map-pick" title={pick.description} aria-label={pick.description}>{pick.label}</small></article>;
+  })}</section>;
   return <section className={`map-series ${compact ? 'compact-series' : ''}`} aria-label="Map series">{maps.map((map, i) => {
     const winner = map.status === 'completed' ? [match?.teamA, match?.teamB].find(team => team?.id === map.winnerTeamId) : null;
+    const pick = mapPick(state.snapshot, map);
     return <article key={`${map.id}-${i}`} className={map.status === 'live' ? 'current-map' : ''}><span>MAP {statistic(map.number)}</span><strong>{text(map.name, text(map.gameName))}</strong>
-      <b>{statistic(map.scoreA)} : {statistic(map.scoreB)}</b><small>{text(map.status, 'Status not set')}{winner ? ` · ${winner.name}` : ''}</small></article>;
+      <b>{statistic(map.scoreA)} : {statistic(map.scoreB)}</b><small className="map-pick" title={pick.description} aria-label={pick.description}>{pick.label}</small><small>{text(map.status, 'Status not set')}{winner ? ` · ${winner.name}` : ''}</small></article>;
   })}</section>;
 }
 export function VetoList({ state }) {

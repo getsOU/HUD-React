@@ -120,7 +120,7 @@ export function createHudStore(clientFactory) {
         publish({ liveStatus: 'disconnected', panelStatus: 'disconnected', message: 'Open this HUD from sOU to connect', metadata: null, metadataAvailable: false });
       }
     });
-    ticker = setInterval(() => { if (valid()) { const now = Date.now(); publish({ now, radarFlashes: radarFlashTracker.read(now) }); } }, 250);
+    ticker = setInterval(() => { if (valid()) { const now = Date.now(); publish({ now, radarFlashes: radarFlashTracker.read(now) }); } }, 50);
     ticker.unref?.();
   }
 

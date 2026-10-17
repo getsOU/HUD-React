@@ -34,7 +34,8 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .clock { font-size: 1.5625cqw; font-variant-numeric: tabular-nums; line-height: 1; }
 .round-label { font-size: .572917cqw; color: #bccbdf; white-space: nowrap; font-weight: 650; letter-spacing: .08em; }
 .round-info.bomb { color: #ffad7c; }
-.live-map-series { position: absolute; left: 1.25cqw; top: 16.666667cqw; width: 15cqw; height: 2.1875cqw; display: flex; gap: .104167cqw; }
+.live-map-series { position: absolute; left: 1.25cqw; top: 16.666667cqw; width: 15cqw; height: 3.125cqw; display: flex; gap: .104167cqw; }
+.live-map-series .map-pick { width: 100%; max-width: 100%; font-size: .520833cqw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .live-map-series article { flex: 1; min-width: 0; padding: .208333cqw .3125cqw; display: flex; flex-wrap: wrap; gap: .052083cqw .208333cqw; align-content: center; justify-content: center; border-top: .104167cqw solid #69717a; background: #101925e8; }
 .live-map-series article.current-map { border-color: #ffd49a; background: #3e3b32ed; }
 .live-map-series span { font-size: .520833cqw; color: #aebbc9; }
@@ -94,6 +95,8 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .radar svg { display: block; width: 100%; height: 100%; }
 .bolt-player { position: absolute; width: 0; height: 0; z-index: 15; color: #d1dae5; }
 .bolt-player.ct { color: #5ab8f4; }
+.bolt-player { transition: left 50ms linear, top 50ms linear; }
+.radar-projectile { transition: transform 50ms linear; }
 .bolt-player.t { color: #f0c941; }
 .bolt-dot { position: absolute; width: 5.6cqw; height: 5.6cqw; background: currentColor; border-radius: 100% .2cqw 100% 100%; box-shadow: 0 0 1.6cqw .8cqw #0003; }
 .bolt-dot.no-direction { border-radius: 100%; }
