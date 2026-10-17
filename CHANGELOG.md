@@ -1,0 +1,22 @@
+# Changelog
+
+## 0.4.1
+
+- Dead players no longer display stale active weapons, ammunition or inventory
+  icons in rosters, the observer card or expanded Spotlight.
+- Living unarmed players leave the current-weapon area empty. An explicitly empty
+  or holstered-only inventory does not fall back to a stale `activeWeapon` field.
+- A genuinely supplied unknown active/reloading weapon retains its own accessible
+  unknown-equipment fallback. Missing health remains unknown, not dead.
+- Public SDK version, package identity, layout, panel fields and prior releases
+  remain unchanged. Import the new package and open a new output to use it.
+
+## 0.4.0
+
+- Original Boltobserv radar, per-object split-floor projection and bounded flash
+  pulses over the public sOU protocol.
+- One chosen broadcast caption, actual round label, reliable team series pips,
+  compact map cells and round history shown during pauses.
+- GPL-3.0-only HUD project with original upstream provenance/source and separate
+  dependency notices. Public sOU SDK remains MIT; older releases retain their
+  original licenses.

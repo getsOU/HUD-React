@@ -1,4 +1,4 @@
-import { number, roster, sideTeam, text } from '../model.js';
+import { number, playerDead, roster, sideTeam, text } from '../model.js';
 import { metadataKey } from './metadata.js';
 import { canonicalMapName, radarLayer } from './assets.js';
 import { sourceName } from './source-name.js';
@@ -10,7 +10,7 @@ export const currentMetadata = (snapshot, metadata) => metadata?.key === metadat
 export const profileFor = (snapshot, metadata, steamId, reference = null) => currentMetadata(snapshot, metadata)?.players?.[steamId]
   ?? (typeof steamId === 'string' && steamId && reference?.id === steamId && reference.missing !== true ? { name: reference.name, avatar: reference.image } : null);
 export const playerName = (player, profile) => text(profile?.name, text(sourceName(player?.name)));
-export const weaponList = player => Array.isArray(player?.weapons) ? player.weapons.filter(Boolean) : [];
+export const weaponList = player => !playerDead(player) && Array.isArray(player?.weapons) ? player.weapons.filter(Boolean) : [];
 export const utility = player => weaponList(player).filter(weapon => weapon.type === 'grenade');
 export const hasBomb = player => weaponList(player).some(weapon => weapon.type === 'bomb' || weapon.kind === 'c4');
 

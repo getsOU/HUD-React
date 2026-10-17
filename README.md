@@ -6,7 +6,7 @@ and seven presentation views. Every display uses public protocol-v2 snapshots, o
 local profile metadata, or an explicit operator setting. It does not invent
 players, match results, events or statistics.
 
-Current HUD version: **0.4.0**. Package ID: `sou-basic-react`.
+Current HUD version: **0.4.1**. Package ID: `sou-basic-react`.
 
 ![Packaged React HUD with calibrated radar, local icons and compact edge displays over a CS2 reference scene](docs/preview.png)
 
@@ -42,11 +42,19 @@ no Node.js, .NET SDK, source checkout or separate web server.
 
 The composition is a 1920 × 1080 reference canvas, scaled uniformly into the
 available viewport with transparent letterboxing. Use a 1920 × 1080 OBS browser
-source. Keep the browser source transparent. Version 0.4.0 places normal live
+source. Keep the browser source transparent. Version 0.4.1 places normal live
 information at the edges: two-line player cards, weapon/equipment icons, economy
 inside each roster footer and a compact observer card. Detailed equipment,
 round statistics and map cards remain in the presentation views. Missing live
 portraits/logos use no replacement box. No remote fonts, CDNs or tracking load.
+
+Players known to be dead have no current weapon, weapon name, ammunition or stale
+inventory display. A living player with no active weapon likewise leaves the
+current-weapon area empty; it does not acquire a question mark, unknown label,
+ammunition placeholder or a holstered weapon. An explicitly empty inventory is
+authoritative even when a contradictory old `activeWeapon` value is present.
+Missing health does not imply death. A genuinely supplied unknown active/reloading
+weapon remains a separate unknown-equipment case. See [changes](CHANGELOG.md).
 
 Known maps, including **Dust2**, automatically select the bundled original **Boltobserv**
 radar and calibration. Leave the optional radar override fields empty to use it. You do not need
@@ -119,7 +127,7 @@ There are no separate HTML builds or router dependencies.
 
 Open a dedicated subview through sOU's output selection. Relative paths above
 are resolved beneath the installed package root, for example
-`/hud-packages/sou-basic-react/0.4.0/views/veto`. Keep the sOU-generated address,
+`/hud-packages/sou-basic-react/0.4.1/views/veto`. Keep the sOU-generated address,
 browser session and base path. Explicit subviews ignore the main scene selector;
 changing **Main output scene** does not turn a dedicated statistics output into
 another view.
@@ -361,8 +369,8 @@ npm run package
 `SOU.Hud.Tool` **0.2.0-preview.4**, then packs and validates:
 
 ```text
-artifacts/sou-basic-react-0.4.0.souhud
-artifacts/sou-basic-react-0.4.0.souhud.sha256
+artifacts/sou-basic-react-0.4.1.souhud
+artifacts/sou-basic-react-0.4.1.souhud.sha256
 ```
 
 `npm run build` creates `dist/hud.json` and `dist/wwwroot` without packaging.
@@ -472,6 +480,12 @@ real GSI/HLAE, output transparency, performance and reconnects in the target set
 
 ## Earlier corrections retained
 
+**0.4.1: absent weapons stay absent.** Dead players suppress stale current weapons
+and inventory in rosters, the observer card and expanded Spotlight. Living unarmed
+or holstered-only players have no current weapon/ammo placeholder; real unknown
+active weapons retain their accessible unknown fallback. Existing 0.4.0 files and
+settings stay unchanged; import 0.4.1 and open an output for that version.
+
 **0.4.0: broadcast context and original Boltobserv.** Replaces the old radar with
 original terrain, calibration, per-object split floors and original marker behavior.
 The header chooses one title, shows the actual round centrally and removes the
@@ -481,14 +495,14 @@ public SDK remains MIT and older releases keep their original licenses.
 
 **0.2.0: eight broadcast views.** Match/lineup/veto/break/results/statistics/spotlight
 presentation and the full public panel were introduced alongside Live. Version
-0.4.0 retains those scenes and field IDs while keeping detailed information out of
+0.4.1 retains those scenes and field IDs while keeping detailed information out of
 the normal live composition. Original 0.2.0 files and release assets stay unchanged.
 
 **0.1.2: visible standard player displays.** sOU initializes a missing checkbox to
 `false`. The earlier Show controls hid the roster/observed card on normal panel
 initialization and caption-only saves. Since 0.1.2, `display.hideRosters` and
 `display.hideObservedPlayer` hide only when explicitly checked. Those IDs and the
-caption remain supported in 0.4.0. When upgrading from 0.1.0/0.1.1, set any desired
+caption remain supported in 0.4.1. When upgrading from 0.1.0/0.1.1, set any desired
 Hide options once; the old Show IDs are not reused.
 
 **0.1.1: transparent host-frame canvas.** The original 0.1.0 forced a dark root

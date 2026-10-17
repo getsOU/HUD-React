@@ -1,4 +1,4 @@
-import { activeWeapon, money, observerSlot, roster, samePlayer, statistic, teamName } from '../../model.js';
+import { activeWeapon, money, observerSlot, playerDead, roster, samePlayer, statistic, teamName } from '../../model.js';
 import { economy, hasBomb, playerCoverage, playerName, profileFor, utility, weaponList } from '../../model/showcase.js';
 import { weaponLabel } from '../../model/assets.js';
 import { LocalImage, Meter, NumberStat } from './Common.jsx';
@@ -6,11 +6,12 @@ import { Icon } from './Icons.jsx';
 
 export function Inventory({ player, full = false, state }) {
   const weapons = full ? weaponList(player) : utility(player);
+  if (!weapons.length) return null;
   return <ul className={`inventory ${full ? 'full-inventory' : ''}`} aria-label={full ? 'Inventory' : 'Utility'}>
     {weapons.map((weapon, i) => <li key={`${weapon.slot ?? 'slot'}-${i}`} className={weapon.state === 'active' || weapon.state === 'reloading' ? 'active' : ''}>
       <Icon weapon={weapon} base={state?.assetBase} />{full && <><span>{weaponLabel(weapon)}</span>{weapon.type !== 'grenade' && weapon.type !== 'knife' && <small>{statistic(weapon.ammoClip)} / {statistic(weapon.ammoReserve)}</small>}</>}
       {weapon.type === 'grenade' && weapon.ammoReserve > 1 && <small className="utility-count">{weapon.ammoReserve}</small>}
-    </li>)}{full && !weapons.length && <li>Inventory unavailable</li>}
+    </li>)}
   </ul>;
 }
 export function PlayerBadges({ player, state }) {
@@ -22,7 +23,7 @@ export function PlayerBadges({ player, state }) {
     {player.burning > 0 && <Icon name="weapons/molotov" label={`Burning ${player.burning}`} base={base} />}</span>;
 }
 export function PlayerRow({ player, state }) {
-  const weapon = activeWeapon(player), dead = player.health === 0;
+  const weapon = activeWeapon(player), dead = playerDead(player);
   const selected = samePlayer(player, state.snapshot?.game?.observedPlayer);
   const profile = profileFor(state.snapshot, state.metadata, player.steamId, state.settings.feature.player);
   const name = playerName(player, profile);
@@ -60,8 +61,8 @@ export function ObservedPlayer({ state, player = state.snapshot?.game?.observedP
   return <section className={`observed-player ${side} ${expanded ? 'expanded' : ''}`} aria-label="Observed player">
     <LocalImage path={profile?.avatar} name={name} media={state.media} className="observed-avatar" optional={!expanded} />
     <div className="observed-main"><div className="observed-identity"><span className="observer-slot">{observerSlot(player.observerSlot)}</span><h2 title={name}>{name}</h2><PlayerBadges player={player} state={state} /></div>
-      <div className="observed-weapon"><Icon weapon={weapon} base={state.assetBase} /><span>{weaponLabel(weapon)}{weapon?.state === 'reloading' ? ' ↻' : ''}</span>
-        {weapon?.type !== 'grenade' && weapon?.type !== 'knife' && <strong>{statistic(weapon?.ammoClip)} <small>/ {statistic(weapon?.ammoReserve)}</small></strong>}<Inventory player={player} state={state} /></div></div>
+      <div className="observed-weapon">{weapon && <><Icon weapon={weapon} base={state.assetBase} /><span>{weaponLabel(weapon)}{weapon.state === 'reloading' ? ' ↻' : ''}</span>
+        {weapon.type !== 'grenade' && weapon.type !== 'knife' && <strong>{statistic(weapon.ammoClip)} <small>/ {statistic(weapon.ammoReserve)}</small></strong>}</>}<Inventory player={player} state={state} /></div></div>
     <dl className="observed-vitals"><NumberStat label="HP" value={player.health} /><NumberStat label="ARM" value={player.armor} /></dl>
     <Meter value={player.health} label="Health" />
     {expanded && <div className="observed-extra"><span>K/D/A {statistic(player.stats?.kills)} / {statistic(player.stats?.deaths)} / {statistic(player.stats?.assists)}</span>

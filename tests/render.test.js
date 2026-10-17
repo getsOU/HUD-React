@@ -11,10 +11,12 @@ import boltCatalog from '../public/assets/boltobserv/catalog.json' with { type: 
 import { readRadarCatalog } from '../src/model/assets.js';
 import { createRadarFlashTracker } from '../src/model/radar-flashes.js';
 
-let server, Hud;
+let server, Hud, PlayerRow, ObservedPlayer, Inventory, Icon;
 before(async () => {
   server = await createServer({ server: { middlewareMode: true, watch: null }, logLevel: 'error' });
   ({ Hud } = await server.ssrLoadModule('/src/ui/Hud.jsx'));
+  ({ PlayerRow, ObservedPlayer, Inventory } = await server.ssrLoadModule('/src/ui/components/Players.jsx'));
+  ({ Icon } = await server.ssrLoadModule('/src/ui/components/Icons.jsx'));
 });
 after(async () => { await server?.close(); });
 
@@ -152,4 +154,44 @@ test('real flash lifetime controls the effect without requiring a smoke effect t
   state.radarFlashes = [];
   const flying = renderLive(state);
   assert.match(flying, /projectile-img-flashbang-CT\.webp/); assert.doesNotMatch(flying, /class="bolt-flash/);
+});
+
+const staleCurrentWeapon = () => ({ slot: 'primary', name: 'weapon_m4a1_silencer', kind: 'm4A1S', type: 'rifle', state: 'active', ammoClip: 73, ammoReserve: 99 });
+const renderPlayer = (component, player, props = {}) => renderToStaticMarkup(createElement(component, { player, state: fixture('live'), ...props }));
+for (const life of [{ health: 0 }, { health: -1 }, { health: 100, isAlive: false }]) test(`dead player ${JSON.stringify(life)} never displays stale current weapon or inventory`, () => {
+  const state = fixture('live'), player = { ...state.snapshot.game.players[0], ...life, activeWeapon: staleCurrentWeapon(), weapons: [staleCurrentWeapon(), { slot: 'utility', name: 'weapon_smokegrenade', type: 'grenade', state: 'holstered' }, { slot: 'bomb', name: 'weapon_c4', kind: 'c4', type: 'bomb', state: 'holstered' }] };
+  for (const [component, props] of [[PlayerRow, {}], [ObservedPlayer, {}], [ObservedPlayer, { expanded: true }], [Inventory, { full: true }]]) {
+    const html = renderPlayer(component, player, props);
+    assert.doesNotMatch(html, /m4a1_silencer|M4A1-S|smokegrenade|weapons\/c4|Unknown weapon|Weapon unavailable|73|99/);
+  }
+});
+test('alive unarmed and holstered-only players leave current weapon and ammo absent', () => {
+  const base = fixture('live').snapshot.game.players[0];
+  for (const weapons of [[], [{ name: 'weapon_awp', type: 'sniperRifle', state: 'holstered' }]]) {
+    const player = { ...base, health: 100, isAlive: true, weapons, activeWeapon: staleCurrentWeapon() };
+    for (const component of [PlayerRow, ObservedPlayer]) {
+      const html = renderPlayer(component, player);
+      assert.doesNotMatch(html, /m4a1_silencer|M4A1-S|weapon-icon|weapons\/awp|Unknown weapon|Weapon unavailable|73|99/);
+    }
+  }
+  const empty = renderPlayer(Inventory, { ...base, health: 100, weapons: [] }, { full: true });
+  assert.equal(empty, '');
+});
+test('actually present unknown weapon keeps its fallback distinct from an absent weapon', () => {
+  const base = fixture('live').snapshot.game.players[0];
+  for (const state of ['active', 'reloading']) {
+    const player = { ...base, health: 100, isAlive: true, weapons: [{ slot: 'primary', name: '', kind: 'unknown', state, ammoClip: 73, ammoReserve: 99 }] };
+    for (const [component, props] of [[PlayerRow, {}], [ObservedPlayer, {}], [ObservedPlayer, { expanded: true }]]) assert.match(renderPlayer(component, player, props), /Unknown weapon/);
+    assert.match(renderPlayer(ObservedPlayer, player), /73/);
+  }
+});
+test('missing weapon icon renders no unknown box while real named unknown equipment remains labeled', () => {
+  assert.equal(renderToStaticMarkup(createElement(Icon, { weapon: null })), '');
+  assert.equal(renderToStaticMarkup(createElement(Icon, {})), '');
+  const html = renderToStaticMarkup(createElement(Icon, { weapon: { name: 'weapon_future_blaster', state: 'active' } }));
+  assert.match(html, /FUTURE BLASTER|future_blaster/);
+});
+test('unknown health does not suppress an actual active weapon', () => {
+  const player = { ...fixture('live').snapshot.game.players[0], health: null, isAlive: null, weapons: [staleCurrentWeapon()] };
+  assert.match(renderPlayer(ObservedPlayer, player), /m4a1_silencer/);
 });

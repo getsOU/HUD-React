@@ -62,9 +62,13 @@ export function clock(game) {
   };
 }
 
+/** Death is explicit; missing health alone does not mean dead. */
+export const playerDead = player => (Number.isFinite(player?.health) && player.health <= 0) || player?.isAlive === false;
 export function activeWeapon(player) {
-  const weapons = Array.isArray(player?.weapons) ? player.weapons : [];
-  return weapons.find(weapon => weapon?.state === 'active' || weapon?.state === 'reloading') ?? player?.activeWeapon ?? null;
+  if (playerDead(player)) return null;
+  if (Array.isArray(player?.weapons)) return player.weapons.find(weapon => weapon?.state === 'active' || weapon?.state === 'reloading') ?? null;
+  const weapon = player?.activeWeapon;
+  return weapon && (weapon.state === 'active' || weapon.state === 'reloading') ? weapon : null;
 }
 export function weaponName(weapon) {
   const name = text(weapon?.name, null);

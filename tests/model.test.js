@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   EMPTY, activeWeapon, clock, localPreviewMode, money, observerSlot, panelSettings,
-  roster, samePlayer, statistic, teamName, time, weaponName,
+  playerDead, roster, samePlayer, statistic, teamName, time, weaponName,
 } from '../src/model.js';
 const coreSettings = state => {
   const { caption, showRosters, showObservedPlayer } = panelSettings(state);
@@ -19,6 +19,35 @@ test('missing and invalid values remain unknown, zero remains meaningful', () =>
   assert.equal(money(0), '$0');
   assert.equal(time(0), '0:00');
   assert.equal(time(83.1), '1:24');
+});
+
+test('confirmed death hides stale active weapons while unknown health remains unknown', () => {
+  const stale = { name: 'weapon_m4a1', state: 'active', ammoClip: 73, ammoReserve: 99 };
+  for (const life of [{ health: 0 }, { health: -1 }, { health: 100, isAlive: false }]) {
+    assert.equal(playerDead(life), true);
+    assert.equal(activeWeapon({ ...life, weapons: [stale], activeWeapon: stale }), null);
+  }
+  for (const life of [{ health: null }, { health: undefined }, { health: NaN }, { health: 100, isAlive: true }]) {
+    assert.equal(playerDead(life), false);
+    assert.equal(activeWeapon({ ...life, weapons: [stale] }), stale);
+  }
+});
+
+test('explicit empty or holstered-only inventory cannot reactivate a stale activeWeapon field', () => {
+  const active = { name: 'weapon_m4a1', state: 'active' }, holstered = { name: 'weapon_awp', state: 'holstered' };
+  assert.equal(activeWeapon({ health: 100, weapons: [], activeWeapon: active }), null);
+  assert.equal(activeWeapon({ health: 100, weapons: [holstered], activeWeapon: active }), null);
+  assert.equal(activeWeapon({ health: 100, weapons: null, activeWeapon: active }), active);
+  for (const state of ['holstered', 'unknown', null, undefined]) assert.equal(activeWeapon({ health: 100, weapons: null, activeWeapon: { ...holstered, state } }), null);
+  const reloading = { ...active, state: 'reloading' };
+  assert.equal(activeWeapon({ health: 100, weapons: null, activeWeapon: reloading }), reloading);
+});
+
+test('actual unknown active and reloading weapon objects remain present', () => {
+  for (const state of ['active', 'reloading']) {
+    const unknown = { name: '', kind: 'unknown', state };
+    assert.equal(activeWeapon({ health: 100, weapons: [unknown] }), unknown);
+  }
 });
 
 test('panel absence is visible; only explicit true hide flags hide content', () => {

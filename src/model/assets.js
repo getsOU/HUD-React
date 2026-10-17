@@ -68,8 +68,9 @@ export async function loadRadarCatalog(base, signal, fetchImpl = fetch) {
 
 export const rawWeapon = weapon => typeof weapon === 'string' ? weapon.replace(/^weapon_/i, '').toLowerCase() : rawWeapon(weapon?.name ?? '');
 export function weaponLabel(weapon) {
+  if (weapon == null || weapon === '') return '';
   const raw = rawWeapon(weapon);
-  if (!raw) return 'Weapon unavailable';
+  if (!raw) return 'Unknown weapon';
   if (raw.startsWith('knife') || raw === 'bayonet') return 'Knife';
   return ({ m4a1_silencer: 'M4A1-S', m4a1: 'M4A4', usp_silencer: 'USP-S', hkp2000: 'P2000', elite: 'Dual Berettas', hegrenade: 'HE grenade', smokegrenade: 'Smoke', flashbang: 'Flashbang', incgrenade: 'Incendiary', defuser: 'Defuse kit' })[raw] ?? raw.replace(/_/g, ' ').toUpperCase();
 }
