@@ -209,3 +209,16 @@ test('an unknown artwork reference retains text without drawing a replacement sy
   const html = renderToStaticMarkup(createElement(Icon, {weapon:{name:null},label:'Unknown weapon'}));
   assert.match(html,/Unknown weapon/);assert.doesNotMatch(html,/<img|<svg|<path/);
 });
+
+test('observer reserves empty data cells and does not duplicate an original weapon icon with visible text', () => {
+  const base = fixture('live').snapshot.game.players[0];
+  const armed = { ...base, health: 100, weapons: [{ name: 'weapon_awp', type: 'sniperRifle', state: 'active', ammoClip: 5, ammoReserve: 30 }] };
+  const html = renderPlayer(ObservedPlayer, armed);
+  assert.match(html, /alt="AWP"/);
+  assert.doesNotMatch(html, />AWP</);
+  assert.match(html, /aria-label="5 \/ 30"/);
+  for (const weapons of [[], armed.weapons]) {
+    const markup = renderPlayer(ObservedPlayer, { ...armed, weapons });
+    for (const cell of ['weapon-cell', 'ammo-cell', 'utility-cell', 'reload']) assert.match(markup, new RegExp(`class="${cell}"`));
+  }
+});

@@ -60,37 +60,51 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .player-row { position: relative; height: 2.8125cqw; padding: .208333cqw .3125cqw; background: #101925ee; border-bottom: .052083cqw solid #344253; overflow: hidden; }
 .player-row.observed { background: #20354bee; box-shadow: inset .15625cqw 0 var(--side); }
 .player-row.dead { opacity: .65; }
-.player-top, .player-bottom { display: flex; align-items: center; gap: .208333cqw; min-width: 0; height: 1.145833cqw; }
+.player-top, .player-bottom { display: grid; align-items: center; gap: .104167cqw; min-width: 0; height: 1.145833cqw; }
+.player-top { grid-template-columns: .9375cqw .833333cqw minmax(0, 1fr) 1.5625cqw 2.1875cqw 2.708333cqw; }
+.player-top > *, .player-bottom > *, .observed-identity > *, .observed-weapon > * { min-width: 0; }
+.portrait-cell { display: grid; place-items: center; height: 100%; overflow: hidden; }
+.player-bottom { grid-template-columns: 2.395833cqw 2.291667cqw 6.25cqw minmax(0, 1fr); }
+.weapon-cell { display: grid; align-items: end; justify-items: start; min-width: 0; height: 100%; overflow: hidden; }
+.utility-cell { min-width: 0; height: .729167cqw; }
 .observer-slot { display: grid; place-items: center; width: .9375cqw; height: 1.041667cqw; color: var(--side); background: var(--side-dark); flex: 0 0 auto; font-size: .729167cqw; font-weight: 700; }
 .roster-avatar { width: .833333cqw; height: 1.041667cqw; }
 .player-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .78125cqw; }
-.player-health { width: 1.145833cqw; flex: 0 0 auto; text-align: right; color: var(--side); font-weight: 700; font-size: .677083cqw; }
-.player-kda { width: 2.1875cqw; text-align: right; font-size: .572917cqw; font-variant-numeric: tabular-nums; }
-.player-armor { display: flex; align-items: center; font-size: .572917cqw; color: #a8bbd3; }
+.player-health { display: grid; align-items: center; justify-items: end; height: 100%; text-align: right; color: var(--side); font-weight: 700; font-size: .677083cqw; }
+.player-kda { text-align: right; white-space: nowrap; overflow: hidden; font-size: .572917cqw; font-variant-numeric: tabular-nums; }
+.player-armor { display: grid; grid-template-columns: 1.6em minmax(0, 1fr); align-items: center; font-size: .572917cqw; color: #a8bbd3; }
+.player-armor > span:last-child { text-align: right; }
 .player-armor .icon { --icon-height: 1em; }
-.player-bottom .weapon-icon { --icon-height: .833333cqw; --icon-max-width: 2.8cqw; flex: 0 0 auto; }
+.player-bottom .weapon-icon { --icon-height: .833333cqw; --icon-max-width: 2.291667cqw; }
 .equipment-badges, .inventory { display: flex; align-items: center; gap: .104167cqw; list-style: none; }
-.player-bottom .equipment-badges .icon { --icon-height: .729167cqw; }
+.player-bottom .equipment-badges .icon { --icon-height: .572917cqw; }
 .inventory:not(.full-inventory) .icon { --icon-height: var(--utility-height); --icon-max-width: 9999px; }
 .inventory li { display: flex; align-items: center; position: relative; }
 .utility-count { font-size: .520833cqw; color: #f2d29f; }
-.player-money { margin-left: auto; white-space: nowrap; font-size: .625cqw; color: #d7e3ef; }
+.player-money { white-space: nowrap; overflow: hidden; font-size: .625cqw; color: #d7e3ef; }
 .player-row > .meter { position: absolute; bottom: 0; left: 0; }
-.roster-economy { position: absolute; bottom: 0; left: 0; right: 0; height: 1.25cqw; display: flex; align-items: center; justify-content: space-between; padding: 0 .416667cqw; background: #091320f5; font-size: .625cqw; color: #aebfd5; }
+.roster-economy { position: absolute; bottom: 0; left: 0; right: 0; height: 1.25cqw; display: grid; grid-template-columns: 1fr 1.25fr 1fr; align-items: center; padding: 0 .416667cqw; background: #091320f5; font-size: .625cqw; color: #aebfd5; }
 .roster-economy span:last-child { display: flex; align-items: center; gap: .208333cqw; }
 .empty-roster { position: absolute; top: 1.25cqw; font-size: .677083cqw; padding: .625cqw; background: #101925df; }
-.observed-player { position: absolute; left: 36.458333cqw; top: 49.479167cqw; width: 27.083333cqw; height: 4.270833cqw; display: flex; align-items: center; gap: .416667cqw; padding: .416667cqw .625cqw; background: #101925f2; border-top: .104167cqw solid var(--side); overflow: hidden; }
+.observed-player { position: absolute; left: 36.458333cqw; top: 49.479167cqw; width: 27.083333cqw; height: 4.270833cqw; display: grid; grid-template-columns: 1.875cqw minmax(0, 1fr) 4.166667cqw; align-items: center; gap: .416667cqw; padding: .416667cqw .625cqw; background: #101925f2; border-top: .104167cqw solid var(--side); overflow: hidden; }
+.observed-avatar-cell { height: 2.708333cqw; overflow: hidden; }
 .observed-avatar { width: 1.875cqw; height: 2.708333cqw; }
 .observed-main { flex: 1; min-width: 0; }
-.observed-identity, .observed-weapon { display: flex; align-items: center; gap: .3125cqw; height: 1.458333cqw; min-width: 0; }
+.observed-identity, .observed-weapon { display: grid; align-items: center; gap: .208333cqw; height: 1.458333cqw; min-width: 0; }
+.observed-identity { grid-template-columns: .9375cqw minmax(0, 1fr) 4.375cqw; }
+.observed-weapon { grid-template-columns: 3.333333cqw 4.166667cqw 2.5cqw 6.875cqw; }
 .observed-identity h2 { font-size: .9375cqw; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .observed-identity .equipment-badges .icon { --icon-height: .729167cqw; }
-.observed-weapon > span { font-size: .625cqw; white-space: nowrap; }
-.observed-weapon strong { font-size: .833333cqw; }
+.observed-weapon .weapon-icon { --icon-max-width: 3.333333cqw; }
+.ammo-cell { display: grid; align-items: end; height: 100%; min-width: 0; overflow: hidden; }
+.ammo { display: grid; grid-template-columns: minmax(0, 1fr) .7em minmax(0, 1fr); align-items: baseline; width: 100%; font-size: .833333cqw; text-align: right; white-space: nowrap; }
+.ammo > span { min-width: 0; overflow: hidden; }
+.ammo > small { text-align: center; }
+.reload { display: grid; align-items: end; height: 100%; min-width: 0; font-size: .520833cqw; color: #ffd5a3; white-space: nowrap; overflow: hidden; }
 .observed-weapon small { color: #a9bdd5; font-size: .625cqw; }
-.observed-weapon .inventory { margin-left: auto; }
+.observed-weapon .utility-cell { height: .833333cqw; }
 
-.observed-vitals { display: flex; gap: .520833cqw; flex: 0 0 auto; text-align: center; }
+.observed-vitals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .208333cqw; text-align: center; }
 .observed-vitals dt { font-size: .520833cqw; color: #9bb1cd; }
 .observed-vitals dd { font-size: .9375cqw; font-weight: 650; }
 .observed-player > .meter { position: absolute; bottom: 0; left: 0; }
@@ -215,10 +229,29 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .empty-message, .source-note { padding: 1.25cqw; text-align: center; font-size: .729167cqw; color: #b7c9df; background: #111925df; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 
-.inventory:not(.full-inventory) { --utility-height: .729167cqw; align-items: flex-end; height: var(--utility-height); gap: calc(var(--utility-height) * .25); }
-.inventory:not(.full-inventory) li { height: var(--utility-height); align-items: flex-end; flex: 0 0 auto; }
-.inventory:not(.full-inventory) li.has-count { padding-right: .3125cqw; }
-.inventory:not(.full-inventory) .utility-count { position: absolute; right: 0; bottom: -.1em; line-height: 1; text-shadow: 0 0 .2em #000; }
+.inventory:not(.full-inventory) { --utility-height: .729167cqw; --utility-slot: 1.041667cqw; display: grid; grid-template-columns: repeat(6, var(--utility-slot)); align-items: end; height: var(--utility-height); gap: 0; }
+.inventory:not(.full-inventory) li { display: grid; grid-template-columns: minmax(0, 1fr) .260417cqw; grid-row: 1; height: var(--utility-height); align-items: end; min-width: 0; }
+.inventory:not(.full-inventory) .utility-count { text-align: right; line-height: 1; text-shadow: 0 0 .2em #000; }
 
 .player-bottom, .observed-weapon { align-items: flex-end; }
-.observed-weapon .inventory:not(.full-inventory) { --utility-height: .833333cqw; }
+.observed-weapon .inventory:not(.full-inventory) { --utility-height: .833333cqw; --utility-slot: 1.145833cqw; }
+
+.inventory:not(.full-inventory) li[data-utility="flashbang"] { grid-column: 1; }
+.inventory:not(.full-inventory) li[data-utility="hegrenade"] { grid-column: 2; }
+.inventory:not(.full-inventory) li[data-utility="smokegrenade"] { grid-column: 3; }
+.inventory:not(.full-inventory) li[data-utility="molotov"] { grid-column: 4; }
+.inventory:not(.full-inventory) li[data-utility="incgrenade"] { grid-column: 5; }
+.inventory:not(.full-inventory) li[data-utility="decoy"] { grid-column: 6; }
+.player-bottom .equipment-badges, .observed-identity .equipment-badges { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: end; height: 100%; gap: 0; }
+.player-bottom .equipment-badges > *, .observed-identity .equipment-badges > * { grid-row: 1; --icon-max-width: 100%; }
+.equipment-badges [data-icon="weapons/helmet"] { grid-column: 1; }
+.equipment-badges [data-icon="ui/defuser_white"] { grid-column: 2; }
+.equipment-badges [data-icon="weapons/c4"] { grid-column: 3; }
+.equipment-badges [data-icon="killfeed/blind_kill"] { grid-column: 4; }
+.equipment-badges [data-icon="killfeed/smoke_kill"] { grid-column: 5; }
+.equipment-badges [data-icon="weapons/inferno"] { grid-column: 6; }
+.roster-economy > span, .observed-vitals dd { min-width: 0; overflow: hidden; white-space: nowrap; }
+.roster-economy > span:last-child { justify-content: end; }
+.observed-player.expanded { grid-template-columns: 4cqw minmax(0, 1fr) 5cqw; }
+.observed-player.expanded .observed-avatar-cell { height: 5cqw; }
+.observed-player.expanded .observed-extra { grid-column: 1 / -1; }

@@ -1,6 +1,6 @@
 import { number, playerDead, roster, sideTeam, text } from '../model.js';
 import { metadataKey } from './metadata.js';
-import { canonicalMapName, radarLayer } from './assets.js';
+import { canonicalMapName, radarLayer, rawWeapon } from './assets.js';
 import { sourceName } from './source-name.js';
 import { boltMarkerScale, boltPoint } from './boltobserv.js';
 export { SCENES, sceneFor } from './panel.js';
@@ -12,6 +12,16 @@ export const profileFor = (snapshot, metadata, steamId, reference = null) => cur
 export const playerName = (player, profile) => text(profile?.name, text(sourceName(player?.name)));
 export const weaponList = player => !playerDead(player) && Array.isArray(player?.weapons) ? player.weapons.filter(Boolean) : [];
 export const utility = player => weaponList(player).filter(weapon => weapon.type === 'grenade');
+export function compactUtility(player) {
+  const groups = new Map();
+  for (const weapon of utility(player)) {
+    const key = rawWeapon(weapon);
+    const previous = groups.get(key);
+    const count = Number.isInteger(weapon.ammoReserve) && weapon.ammoReserve >= 0 && weapon.ammoReserve <= 10 ? weapon.ammoReserve : null;
+    groups.set(key, previous ? { ...previous, ammoReserve: previous.ammoReserve === null || count === null ? null : previous.ammoReserve + count } : { ...weapon, ammoReserve: count });
+  }
+  return [...groups.values()].sort((a, b) => rawWeapon(a).localeCompare(rawWeapon(b))).slice(0, 6);
+}
 export const hasBomb = player => weaponList(player).some(weapon => weapon.type === 'bomb' || weapon.kind === 'c4');
 
 export function teamLineup(snapshot, metadata, teamId) {

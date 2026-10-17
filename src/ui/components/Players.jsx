@@ -1,16 +1,16 @@
 import { activeWeapon, money, observerSlot, playerDead, roster, samePlayer, statistic, teamName } from '../../model.js';
-import { economy, hasBomb, playerCoverage, playerName, profileFor, utility, weaponList } from '../../model/showcase.js';
-import { weaponLabel } from '../../model/assets.js';
+import { compactUtility, economy, hasBomb, playerCoverage, playerName, profileFor, weaponList } from '../../model/showcase.js';
+import { rawWeapon, weaponLabel } from '../../model/assets.js';
 import { LocalImage, Meter, NumberStat } from './Common.jsx';
 import { Icon } from './Icons.jsx';
 
 export function Inventory({ player, full = false, state }) {
-  const weapons = full ? weaponList(player) : utility(player);
+  const weapons = full ? weaponList(player) : compactUtility(player);
   if (!weapons.length) return null;
   return <ul className={`inventory ${full ? 'full-inventory' : ''}`} aria-label={full ? 'Inventory' : 'Utility'}>
-    {weapons.map((weapon, i) => <li key={`${weapon.slot ?? 'slot'}-${i}`} className={`${weapon.state === 'active' || weapon.state === 'reloading' ? 'active' : ''} ${weapon.type === 'grenade' && weapon.ammoReserve > 1 ? 'has-count' : ''}`}>
+    {weapons.map((weapon, i) => <li key={`${weapon.slot ?? 'slot'}-${i}`} data-utility={!full ? rawWeapon(weapon) : undefined} className={weapon.state === 'active' || weapon.state === 'reloading' ? 'active' : ''}>
       <Icon weapon={weapon} base={state?.assetBase} />{full && <><span>{weaponLabel(weapon)}</span>{weapon.type !== 'grenade' && weapon.type !== 'knife' && <small>{statistic(weapon.ammoClip)} / {statistic(weapon.ammoReserve)}</small>}</>}
-      {weapon.type === 'grenade' && weapon.ammoReserve > 1 && <small className="utility-count">{weapon.ammoReserve}</small>}
+      {weapon.type === 'grenade' && <small className="utility-count">{weapon.ammoReserve === 0 || weapon.ammoReserve > 1 ? weapon.ammoReserve : ''}</small>}
     </li>)}
   </ul>;
 }
@@ -29,11 +29,11 @@ export function PlayerRow({ player, state }) {
   const name = playerName(player, profile);
   return <li className={`player-row${dead ? ' dead' : ''}${selected ? ' observed' : ''}`}>
     <div className="player-top"><span className="observer-slot">{observerSlot(player.observerSlot)}</span>
-      <LocalImage path={profile?.avatar} name={name} media={state.media} className="roster-avatar" optional />
+      <span className="portrait-cell"><LocalImage path={profile?.avatar} name={name} media={state.media} className="roster-avatar" optional /></span>
       <strong className="player-name" title={name}>{name}</strong><span className="player-health">{dead ? <Icon name="killfeed/icon_suicide" label="Dead" base={state.assetBase} /> : statistic(player.health)}</span>
+      <span className="player-armor"><Icon name={player.helmet === true ? 'weapons/armor_helmet' : 'ui/armor'} label={player.helmet === true ? 'Armor and helmet' : 'Armor'} base={state.assetBase} /><span>{statistic(player.armor)}</span></span>
       <span className="player-kda" title="Kills / deaths / assists">{statistic(player.stats?.kills)}/{statistic(player.stats?.deaths)}/{statistic(player.stats?.assists)}</span></div>
-    <div className="player-bottom"><span className="player-armor"><Icon name={player.helmet === true ? "weapons/armor_helmet" : "ui/armor"} label={player.helmet === true ? "Armor and helmet" : "Armor"} base={state.assetBase} />{statistic(player.armor)}</span>
-      <PlayerBadges player={player} state={state} showHelmet={false} /><Icon weapon={weapon} base={state.assetBase} /><Inventory player={player} state={state} /><span className="player-money">{money(player.money)}</span></div>
+    <div className="player-bottom"><span className="player-money">{money(player.money)}</span><span className="weapon-cell"><Icon weapon={weapon} base={state.assetBase} /></span><span className="utility-cell"><Inventory player={player} state={state} /></span><PlayerBadges player={player} state={state} showHelmet={false} /></div>
     <Meter value={player.health} label={`${name} health`} />
   </li>;
 }
@@ -59,10 +59,10 @@ export function ObservedPlayer({ state, player = state.snapshot?.game?.observedP
   const name = playerName(player, profile), coverage = playerCoverage(player);
   const side = player.side === 'counterTerrorists' ? 'ct' : player.side === 'terrorists' ? 't' : 'neutral';
   return <section className={`observed-player ${side} ${expanded ? 'expanded' : ''}`} aria-label="Observed player">
-    <LocalImage path={profile?.avatar} name={name} media={state.media} className="observed-avatar" optional={!expanded} />
+    <span className="observed-avatar-cell"><LocalImage path={profile?.avatar} name={name} media={state.media} className="observed-avatar" optional={!expanded} /></span>
     <div className="observed-main"><div className="observed-identity"><span className="observer-slot">{observerSlot(player.observerSlot)}</span><h2 title={name}>{name}</h2><PlayerBadges player={player} state={state} /></div>
-      <div className="observed-weapon">{weapon && <><Icon weapon={weapon} base={state.assetBase} /><span>{weaponLabel(weapon)}{weapon.state === 'reloading' ? ' ↻' : ''}</span>
-        {weapon.type !== 'grenade' && weapon.type !== 'knife' && <strong>{statistic(weapon.ammoClip)} <small>/ {statistic(weapon.ammoReserve)}</small></strong>}</>}<Inventory player={player} state={state} /></div></div>
+      <div className="observed-weapon"><span className="weapon-cell"><Icon weapon={weapon} base={state.assetBase} /></span><span className="ammo-cell">
+        {weapon && weapon.type !== 'grenade' && weapon.type !== 'knife' && <strong className="ammo" aria-label={`${statistic(weapon.ammoClip)} / ${statistic(weapon.ammoReserve)}`}><span>{statistic(weapon.ammoClip)}</span><small>/</small><span>{statistic(weapon.ammoReserve)}</span></strong>}</span><span className="reload">{weapon?.state === 'reloading' ? 'RELOAD' : ''}</span><span className="utility-cell"><Inventory player={player} state={state} /></span></div></div>
     <dl className="observed-vitals"><NumberStat label="HP" value={player.health} /><NumberStat label="ARM" value={player.armor} /></dl>
     <Meter value={player.health} label="Health" />
     {expanded && <div className="observed-extra"><span>K/D/A {statistic(player.stats?.kills)} / {statistic(player.stats?.deaths)} / {statistic(player.stats?.assists)}</span>
