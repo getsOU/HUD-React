@@ -4,10 +4,23 @@ A small, transparent CS2 broadcast HUD built with React, Vite and the **public
 sOU HUD SDK**. This is an independent, MIT-licensed starting point for authors.
 It renders real protocol-v2 snapshots from the local sOU desktop host.
 
-![Basic React HUD showing a synthetic example match](docs/preview.png)
+Current HUD version: **0.1.1**.
 
-The screenshot uses only synthetic example data in an isolated local package
-host. The empty game area is transparent; it appears dark in this capture.
+![Basic React HUD over a checkerboard behind its transparent output](docs/preview.png)
+
+The screenshot shows the actual Release package with synthetic example data in
+an isolated local package host. The checkerboard sits behind the embedded HUD
+to demonstrate transparency; it is not included in the HUD.
+
+### Transparency correction in 0.1.1
+
+Version 0.1.0 forced a dark document color scheme. Inside the sOU output frame,
+that mismatch could make the browser paint an opaque full-screen background,
+including in the native CS2 overlay. This was a rendering defect. Version 0.1.1
+removes the forced document color scheme so the transparent game area can show
+through the frame. The scoreboard, roster and observed-player panel colors
+are unchanged. Import the new package version and open a new output; an already
+running 0.1.0 output retains its original files.
 
 - CT on the left, blue; T on the right, warm orange.
 - Score, map, round, source phase/countdown and explicit bomb state.
@@ -43,8 +56,8 @@ npm run package
 `SOU.Hud.Tool` **0.2.0-preview.4** from nuget.org, packages and validates:
 
 ```text
-artifacts/sou-basic-react-0.1.0.souhud
-artifacts/sou-basic-react-0.1.0.souhud.sha256
+artifacts/sou-basic-react-0.1.1.souhud
+artifacts/sou-basic-react-0.1.1.souhud.sha256
 ```
 
 The build tree is `dist/hud.json` plus `dist/wwwroot`. The final package also
@@ -96,7 +109,7 @@ the normal "Open this HUD from sOU" message.
 For real snapshots, build/package/import a new version in sOU. A Vite server is
 not a replacement for the installed package URL or the sOU browser session.
 There is no insecure cross-origin development proxy. The build uses relative
-asset paths and runs under `/hud-packages/sou-basic-react/0.1.0/` with the host's
+asset paths and runs under `/hud-packages/sou-basic-react/0.1.1/` with the host's
 Content Security Policy; no CDN, inline script, `eval`, telemetry, remote fonts,
 or external assets are required.
 

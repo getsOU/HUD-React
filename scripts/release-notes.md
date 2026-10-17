@@ -1,3 +1,14 @@
+sOU Basic HUD · React 0.1.1 — transparency correction
+
+Fixes the opaque full-screen background reported in the native CS2 overlay.
+Version 0.1.0 forced a dark document color scheme that differed from the sOU
+output frame's scheme, causing the browser to paint an opaque canvas. This
+release removes that document-level color-scheme override; the scoreboard,
+roster and observed-player panel colors remain unchanged.
+
+Import 0.1.1 and open a new output to use the corrected package. Existing 0.1.0
+files and outputs are immutable and retain their original behavior.
+
 An MIT-licensed basic CS2 HUD using the public sOU SDK.
 
 - Transparent scoreboard, map, round and reported countdown/bomb state.
