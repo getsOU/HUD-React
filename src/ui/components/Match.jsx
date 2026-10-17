@@ -81,7 +81,7 @@ const sideClass = side => side === 'counterTerrorists' ? 'ct' : side === 'terror
 export function KillFeed({ state }) {
   if (!state.settings.showKillfeed) return null;
   const kills = killEntries(state.snapshot);
-  return <section className="killfeed" aria-label="Killfeed">{kills.length ? kills.map(kill => <article key={kill.key} className="kill-row">
+  return <section className="killfeed" aria-label="Killfeed">{kills.length ? kills.map(kill => <article key={kill.key} className="kill-row" data-event-id={kill.id}>
     <div><strong className={sideClass(kill.killer?.side)} title={sourceName(kill.killer?.name)}>{text(sourceName(kill.killer?.name), 'World')}</strong>{kill.assister && <span className="kill-assister" title={sourceName(kill.assister.name)}> + {text(sourceName(kill.assister.name))}</span>}<Icon weapon={kill.weapon} base={state.assetBase} /><strong className={sideClass(kill.victim?.side)} title={sourceName(kill.victim?.name)}>{text(sourceName(kill.victim?.name))}</strong></div>
     <small>{killFlags.filter(([key]) => kill[key] === true).map(([, name, label]) => <Icon key={name} name={name} label={label} base={state.assetBase} />)}</small>
   </article>) : null}</section>;

@@ -6,7 +6,7 @@ and seven presentation views. Every display uses public protocol-v2 snapshots, o
 local profile metadata, or an explicit operator setting. It does not invent
 players, match results, events or statistics.
 
-Current HUD version: **0.4.4**. Package ID: `sou-basic-react`.
+Current HUD version: **0.4.5**. Package ID: `sou-basic-react`.
 
 ![Packaged React HUD with calibrated radar, local icons and compact edge displays over a CS2 reference scene](docs/preview.png)
 
@@ -127,7 +127,7 @@ There are no separate HTML builds or router dependencies.
 
 Open a dedicated subview through sOU's output selection. Relative paths above
 are resolved beneath the installed package root, for example
-`/hud-packages/sou-basic-react/0.4.4/views/veto`. Keep the sOU-generated address,
+`/hud-packages/sou-basic-react/0.4.5/views/veto`. Keep the sOU-generated address,
 browser session and base path. Explicit subviews ignore the main scene selector;
 changing **Main output scene** does not turn a dedicated statistics output into
 another view.
@@ -369,8 +369,8 @@ npm run package
 `SOU.Hud.Tool` **0.2.0-preview.4**, then packs and validates:
 
 ```text
-artifacts/sou-basic-react-0.4.4.souhud
-artifacts/sou-basic-react-0.4.4.souhud.sha256
+artifacts/sou-basic-react-0.4.5.souhud
+artifacts/sou-basic-react-0.4.5.souhud.sha256
 ```
 
 `npm run build` creates `dist/hud.json` and `dist/wwwroot` without packaging.
@@ -565,3 +565,11 @@ Player dots and upright labels use Boltobserv's original Arial bold font, 5.6-un
 ## Original CS2 icons (0.4.4)
 
 All game status, equipment, killfeed and round-result icons use local original CS2 SVGs. Icon sizes preserve the original aspect ratios. Unknown or unavailable artwork uses a text label, never a fabricated replacement icon. Game artwork retains separate Valve rights; GPLv3 covers HUD code, and the public SDK remains MIT.
+
+## Icon balance and killfeed order (0.4.5)
+
+Icon frames follow measured visible SVG geometry, with unchanged original source files. Health/armor follow nearby text sizes; utility uses a common baseline, optical height and spacing. Counts have a reserved position without moving the grenade. Combined armor/helmet keeps its natural width. Weapon silhouettes retain their proportions within a bounded frame. Empty original artwork has a text label.
+
+The killfeed places older visible kills above newer ones. New kills append at the bottom; at six entries the oldest leaves the top.
+
+The measured bounds in docs/cs2-icon-geometry.json are tied to the original SVG SHA-256 values. After updating reviewed measurements, run scripts/Generate-IconLayout.ps1 to regenerate the CSS; -Check verifies it without writing. CI checks source digests and generated layout.

@@ -8,7 +8,7 @@ export function Inventory({ player, full = false, state }) {
   const weapons = full ? weaponList(player) : utility(player);
   if (!weapons.length) return null;
   return <ul className={`inventory ${full ? 'full-inventory' : ''}`} aria-label={full ? 'Inventory' : 'Utility'}>
-    {weapons.map((weapon, i) => <li key={`${weapon.slot ?? 'slot'}-${i}`} className={weapon.state === 'active' || weapon.state === 'reloading' ? 'active' : ''}>
+    {weapons.map((weapon, i) => <li key={`${weapon.slot ?? 'slot'}-${i}`} className={`${weapon.state === 'active' || weapon.state === 'reloading' ? 'active' : ''} ${weapon.type === 'grenade' && weapon.ammoReserve > 1 ? 'has-count' : ''}`}>
       <Icon weapon={weapon} base={state?.assetBase} />{full && <><span>{weaponLabel(weapon)}</span>{weapon.type !== 'grenade' && weapon.type !== 'knife' && <small>{statistic(weapon.ammoClip)} / {statistic(weapon.ammoReserve)}</small>}</>}
       {weapon.type === 'grenade' && weapon.ammoReserve > 1 && <small className="utility-count">{weapon.ammoReserve}</small>}
     </li>)}

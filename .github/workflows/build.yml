@@ -34,6 +34,9 @@ jobs:
         run: npm run sdk:verify
       - name: Lint
         run: npm run lint
+      - name: Verify original icon layout
+        shell: pwsh
+        run: ./scripts/Generate-IconLayout.ps1 -Check
       - name: Test
         run: npm test
       - name: Build and validate installable package

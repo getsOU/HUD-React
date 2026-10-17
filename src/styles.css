@@ -1,3 +1,4 @@
+@import "./ui/icon-layout.css";
 :root { font-family: 'Segoe UI', Arial, sans-serif; color: #edf3fa; font-synthesis: none; text-rendering: optimizeLegibility; }
 * { box-sizing: border-box; }
 html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; }
@@ -7,8 +8,10 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .ct { --side: #80c2ff; --side-dark: #203b58; }
 .t { --side: #ffbf77; --side-dark: #503d29; }
 .neutral { --side: #d1dae5; --side-dark: #344152; }
-.icon { display: inline-block; width: .833333cqw; height: .833333cqw; object-fit: contain; filter: brightness(0) invert(1); flex: 0 0 auto; vertical-align: middle; }
-.weapon-icon { width: 2.8cqw; height: .9375cqw; }
+.cs2-icon { display: inline-block; position: relative; width: min(calc(var(--icon-height) * var(--icon-aspect, 1)), var(--icon-max-width, 9999px)); height: auto; aspect-ratio: var(--icon-aspect, 1); overflow: hidden; flex: 0 0 auto; vertical-align: middle; filter: brightness(0) invert(1); }
+.cs2-icon > .icon-source { position: absolute; display: block; left: var(--icon-image-left, 0%); top: var(--icon-image-top, 0%); width: var(--icon-image-width, 100%); height: var(--icon-image-height, 100%); max-width: none; border: 0; }
+.icon { --icon-height: .729167cqw; }
+.weapon-icon { --icon-height: .833333cqw; --icon-max-width: 2.8cqw; }
 .icon-label { display: inline-block; max-width: 7em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .7em; vertical-align: middle; }
 .local-image { display: block; object-fit: contain; flex: 0 0 auto; }
 .image-fallback { display: grid; place-items: center; color: #d5e1ef; background: #26364a; font-weight: 700; }
@@ -45,7 +48,7 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .round-history { position: absolute; top: 5.416667cqw; left: 37.5cqw; width: 25cqw; height: 1.666667cqw; display: flex; justify-content: center; gap: .15625cqw; overflow: hidden; }
 .round-history > span { display: grid; place-items: center; height: 1.666667cqw; width: 1.354167cqw; border-bottom: .104167cqw solid var(--side); background: #132033e6; color: var(--side); }
 .round-history b { font-size: .572917cqw; font-weight: 600; }
-.round-history .icon { width: .833333cqw; height: .833333cqw; }
+.round-history .icon { --icon-height: .729167cqw; }
 .round-situation { position: absolute; top: 5.208333cqw; left: 25cqw; width: 50cqw; height: 1.041667cqw; display: flex; gap: .416667cqw; justify-content: center; align-items: center; background: #162940fa; font-size: .625cqw; overflow: hidden; white-space: nowrap; }
 .round-situation span { color: #bfd0e7; }
 .roster { position: absolute; left: 1.25cqw; top: 38.4375cqw; width: 16.25cqw; height: 16.5625cqw; overflow: hidden; }
@@ -64,11 +67,11 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .player-health { width: 1.145833cqw; flex: 0 0 auto; text-align: right; color: var(--side); font-weight: 700; font-size: .677083cqw; }
 .player-kda { width: 2.1875cqw; text-align: right; font-size: .572917cqw; font-variant-numeric: tabular-nums; }
 .player-armor { display: flex; align-items: center; font-size: .572917cqw; color: #a8bbd3; }
-.player-armor .icon { width: .833333cqw; height: .833333cqw; }
-.player-bottom .weapon-icon { flex: 1 1 1.875cqw; min-width: 1.25cqw; max-width: 2.5cqw; }
+.player-armor .icon { --icon-height: 1em; }
+.player-bottom .weapon-icon { --icon-height: .833333cqw; --icon-max-width: 2.8cqw; flex: 0 0 auto; }
 .equipment-badges, .inventory { display: flex; align-items: center; gap: .104167cqw; list-style: none; }
-.player-bottom .equipment-badges .icon { width: .833333cqw; height: .833333cqw; }
-.player-bottom .inventory .icon, .observed-weapon .inventory .icon { width: .625cqw; height: .9375cqw; }
+.player-bottom .equipment-badges .icon { --icon-height: .729167cqw; }
+.inventory:not(.full-inventory) .icon { --icon-height: var(--utility-height); --icon-max-width: 9999px; }
 .inventory li { display: flex; align-items: center; position: relative; }
 .utility-count { font-size: .520833cqw; color: #f2d29f; }
 .player-money { margin-left: auto; white-space: nowrap; font-size: .625cqw; color: #d7e3ef; }
@@ -81,7 +84,7 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .observed-main { flex: 1; min-width: 0; }
 .observed-identity, .observed-weapon { display: flex; align-items: center; gap: .3125cqw; height: 1.458333cqw; min-width: 0; }
 .observed-identity h2 { font-size: .9375cqw; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.observed-identity .equipment-badges .icon { width: .833333cqw; height: .833333cqw; }
+.observed-identity .equipment-badges .icon { --icon-height: .729167cqw; }
 .observed-weapon > span { font-size: .625cqw; white-space: nowrap; }
 .observed-weapon strong { font-size: .833333cqw; }
 .observed-weapon small { color: #a9bdd5; font-size: .625cqw; }
@@ -121,14 +124,14 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .radar-grenade-unknown { fill: #f2e8c9; stroke: #292824; stroke-width: .25; }
 .radar-site { fill: #f8d77c; stroke: #161b23; stroke-width: .8; paint-order: stroke; font-weight: 750; font-size: 5px; text-anchor: middle; }
 .radar-unavailable { position: absolute; left: 1.25cqw; top: 1.25cqw; padding: .3125cqw .416667cqw; background: #101925c9; font-size: .625cqw; color: #c2d0dc; }
-.killfeed { position: absolute; left: 81.25cqw; top: 1.666667cqw; width: 17.5cqw; max-height: 9.375cqw; display: grid; gap: .104167cqw; overflow: hidden; }
+.killfeed { position: absolute; left: 81.25cqw; top: 1.666667cqw; width: 17.5cqw; max-height: 9.375cqw; display: flex; flex-direction: column; gap: .104167cqw; overflow: hidden; }
 .kill-row { background: #101925e8; min-height: 1.354167cqw; max-height: 1.458333cqw; padding: .15625cqw .3125cqw; display: flex; align-items: center; gap: .208333cqw; }
 .kill-row > div { display: flex; align-items: center; justify-content: flex-end; gap: .208333cqw; flex: 1; min-width: 0; }
 .kill-row strong { color: var(--side, #c7d5e8); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .625cqw; }
-.kill-row .weapon-icon { width: 2.5cqw; height: .833333cqw; }
+.kill-row .weapon-icon { --icon-height: .729167cqw; --icon-max-width: 2.5cqw; }
 .kill-assister { max-width: 2.083333cqw; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: .520833cqw; }
 .kill-row small { display: flex; gap: .104167cqw; flex: 0 0 auto; }
-.kill-row small .icon { width: .833333cqw; height: .833333cqw; }
+.kill-row small .icon { --icon-height: .625cqw; }
 .sponsor-rail { position: absolute; left: 42.5cqw; top: 54.166667cqw; width: 15cqw; height: 1.25cqw; display: flex; align-items: center; justify-content: center; gap: .416667cqw; overflow: hidden; background: #101925db; font-size: .625cqw; }
 .sponsor-rail .local-image, .sponsor-rail .image-fallback { width: 3.125cqw; height: 1.041667cqw; font-size: .625cqw; }
 .sponsor-rail > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -211,3 +214,11 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .scene-statistics .round-history { position: static; width: 100%; height: 1.666667cqw; margin-top: .625cqw; }
 .empty-message, .source-note { padding: 1.25cqw; text-align: center; font-size: .729167cqw; color: #b7c9df; background: #111925df; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+.inventory:not(.full-inventory) { --utility-height: .729167cqw; align-items: flex-end; height: var(--utility-height); gap: calc(var(--utility-height) * .25); }
+.inventory:not(.full-inventory) li { height: var(--utility-height); align-items: flex-end; flex: 0 0 auto; }
+.inventory:not(.full-inventory) li.has-count { padding-right: .3125cqw; }
+.inventory:not(.full-inventory) .utility-count { position: absolute; right: 0; bottom: -.1em; line-height: 1; text-shadow: 0 0 .2em #000; }
+
+.player-bottom, .observed-weapon { align-items: flex-end; }
+.observed-weapon .inventory:not(.full-inventory) { --utility-height: .833333cqw; }
