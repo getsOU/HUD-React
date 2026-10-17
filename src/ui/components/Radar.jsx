@@ -29,7 +29,7 @@ export function Radar({ state }) {
       {view.flashes.map(flash => <circle key={flash.id} cx={flash.x} cy={flash.y} r={145 * view.worldUnitScale} className={`bolt-flash ${flash.phase}`}><title>Flashbang</title></circle>)}
       {view.grenades.filter(boltProjectileVisible).map(grenade => {
         const source = packageAsset(boltProjectileImage(grenade.type, grenade.side), state.assetBase);
-        return <g key={`${view.motionContext}|${grenade.id}`} className="radar-projectile" style={{ transform: `translate(${grenade.x}px, ${grenade.y}px)` }}><title>{grenade.type ?? 'Unknown grenade'}</title>{source ? <image href={source} x="-2" y="-2" width="4" height="4" /> : <circle r=".9" className="radar-grenade-unknown" />}</g>;
+        return <g key={`${view.motionContext}|${grenade.id}`} className="radar-projectile" style={{ transform: `translate(${grenade.x}px, ${grenade.y}px)` }}><title>{grenade.type ?? 'Unknown grenade'}</title>{source ? <image href={source} x="-2" y="-2" width="4" height="4" /> : null}</g>;
       })}
       {boltBombVisible(view.bomb) && <image href={packageAsset(`assets/boltobserv/img/bomb-${view.bomb.state === 'defused' ? 'defused' : ['planted', 'defusing'].includes(view.bomb.state) ? 'planted' : 'dropped'}.webp`, state.assetBase)} x={view.bomb.x - 1.1} y={view.bomb.y - 1.1} width="2.2" height="2.2"><title>{`Bomb · ${view.bomb.state}`}</title></image>}
     </svg>

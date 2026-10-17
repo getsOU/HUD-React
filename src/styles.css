@@ -7,8 +7,9 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .ct { --side: #80c2ff; --side-dark: #203b58; }
 .t { --side: #ffbf77; --side-dark: #503d29; }
 .neutral { --side: #d1dae5; --side-dark: #344152; }
-.icon { display: inline-block; width: .729167cqw; height: .729167cqw; object-fit: contain; flex: 0 0 auto; vertical-align: middle; }
-.weapon-icon { width: 2.5cqw; height: .833333cqw; }
+.icon { display: inline-block; width: .833333cqw; height: .833333cqw; object-fit: contain; filter: brightness(0) invert(1); flex: 0 0 auto; vertical-align: middle; }
+.weapon-icon { width: 2.8cqw; height: .9375cqw; }
+.icon-label { display: inline-block; max-width: 7em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .7em; vertical-align: middle; }
 .local-image { display: block; object-fit: contain; flex: 0 0 auto; }
 .image-fallback { display: grid; place-items: center; color: #d5e1ef; background: #26364a; font-weight: 700; }
 .meter { display: block; height: .104167cqw; width: 100%; appearance: none; border: 0; background: #364254; border-radius: 0; }
@@ -44,7 +45,7 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .round-history { position: absolute; top: 5.416667cqw; left: 37.5cqw; width: 25cqw; height: 1.666667cqw; display: flex; justify-content: center; gap: .15625cqw; overflow: hidden; }
 .round-history > span { display: grid; place-items: center; height: 1.666667cqw; width: 1.354167cqw; border-bottom: .104167cqw solid var(--side); background: #132033e6; color: var(--side); }
 .round-history b { font-size: .572917cqw; font-weight: 600; }
-.round-history .icon { width: .520833cqw; height: .625cqw; }
+.round-history .icon { width: .833333cqw; height: .833333cqw; }
 .round-situation { position: absolute; top: 5.208333cqw; left: 25cqw; width: 50cqw; height: 1.041667cqw; display: flex; gap: .416667cqw; justify-content: center; align-items: center; background: #162940fa; font-size: .625cqw; overflow: hidden; white-space: nowrap; }
 .round-situation span { color: #bfd0e7; }
 .roster { position: absolute; left: 1.25cqw; top: 38.4375cqw; width: 16.25cqw; height: 16.5625cqw; overflow: hidden; }
@@ -63,10 +64,11 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .player-health { width: 1.145833cqw; flex: 0 0 auto; text-align: right; color: var(--side); font-weight: 700; font-size: .677083cqw; }
 .player-kda { width: 2.1875cqw; text-align: right; font-size: .572917cqw; font-variant-numeric: tabular-nums; }
 .player-armor { display: flex; align-items: center; font-size: .572917cqw; color: #a8bbd3; }
-.player-armor .icon { width: .625cqw; height: .625cqw; }
+.player-armor .icon { width: .833333cqw; height: .833333cqw; }
 .player-bottom .weapon-icon { flex: 1 1 1.875cqw; min-width: 1.25cqw; max-width: 2.5cqw; }
 .equipment-badges, .inventory { display: flex; align-items: center; gap: .104167cqw; list-style: none; }
-.player-bottom .equipment-badges .icon, .player-bottom .inventory .icon { width: .625cqw; height: .625cqw; }
+.player-bottom .equipment-badges .icon { width: .833333cqw; height: .833333cqw; }
+.player-bottom .inventory .icon, .observed-weapon .inventory .icon { width: .625cqw; height: .9375cqw; }
 .inventory li { display: flex; align-items: center; position: relative; }
 .utility-count { font-size: .520833cqw; color: #f2d29f; }
 .player-money { margin-left: auto; white-space: nowrap; font-size: .625cqw; color: #d7e3ef; }
@@ -79,12 +81,12 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .observed-main { flex: 1; min-width: 0; }
 .observed-identity, .observed-weapon { display: flex; align-items: center; gap: .3125cqw; height: 1.458333cqw; min-width: 0; }
 .observed-identity h2 { font-size: .9375cqw; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.observed-identity .equipment-badges .icon { width: .625cqw; height: .625cqw; }
+.observed-identity .equipment-badges .icon { width: .833333cqw; height: .833333cqw; }
 .observed-weapon > span { font-size: .625cqw; white-space: nowrap; }
 .observed-weapon strong { font-size: .833333cqw; }
 .observed-weapon small { color: #a9bdd5; font-size: .625cqw; }
 .observed-weapon .inventory { margin-left: auto; }
-.observed-weapon .inventory .icon { width: .729167cqw; height: .729167cqw; }
+
 .observed-vitals { display: flex; gap: .520833cqw; flex: 0 0 auto; text-align: center; }
 .observed-vitals dt { font-size: .520833cqw; color: #9bb1cd; }
 .observed-vitals dd { font-size: .9375cqw; font-weight: 650; }
@@ -123,10 +125,10 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .kill-row { background: #101925e8; min-height: 1.354167cqw; max-height: 1.458333cqw; padding: .15625cqw .3125cqw; display: flex; align-items: center; gap: .208333cqw; }
 .kill-row > div { display: flex; align-items: center; justify-content: flex-end; gap: .208333cqw; flex: 1; min-width: 0; }
 .kill-row strong { color: var(--side, #c7d5e8); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .625cqw; }
-.kill-row .weapon-icon { width: 2.083333cqw; height: .729167cqw; }
+.kill-row .weapon-icon { width: 2.5cqw; height: .833333cqw; }
 .kill-assister { max-width: 2.083333cqw; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: .520833cqw; }
 .kill-row small { display: flex; gap: .104167cqw; flex: 0 0 auto; }
-.kill-row small .icon { width: .625cqw; height: .625cqw; }
+.kill-row small .icon { width: .833333cqw; height: .833333cqw; }
 .sponsor-rail { position: absolute; left: 42.5cqw; top: 54.166667cqw; width: 15cqw; height: 1.25cqw; display: flex; align-items: center; justify-content: center; gap: .416667cqw; overflow: hidden; background: #101925db; font-size: .625cqw; }
 .sponsor-rail .local-image, .sponsor-rail .image-fallback { width: 3.125cqw; height: 1.041667cqw; font-size: .625cqw; }
 .sponsor-rail > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

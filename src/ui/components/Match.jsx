@@ -54,8 +54,9 @@ export function RoundHistory({ state, always = false }) {
     <RoundResultIcon reason={round.reason} base={state.assetBase} /></span>)}</section>;
 }
 function RoundResultIcon({ reason, base }) {
-  if (reason === 'bombDefused' || reason === 'bombExploded' || reason === 'elimination') return <Icon name={reason === 'bombDefused' ? 'ui/defuser_white' : reason === 'bombExploded' ? 'weapons/c4' : 'killfeed/icon_suicide'} label={reason} base={base} />;
-  return <svg className="icon" viewBox="0 0 24 24" role="img" aria-label={reason === 'timeExpired' ? 'Time expired' : reason === 'hostageRescued' ? 'Hostage rescued' : 'Unknown round result'}><title>{reason}</title>{reason === 'timeExpired' ? <><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M12 5v7l4 2" fill="none" stroke="currentColor" strokeWidth="2" /></> : reason === 'hostageRescued' ? <><circle cx="12" cy="6" r="3" fill="currentColor" /><path d="M8 11h8v11H8z" fill="currentColor" /></> : <path d="M12 3 21 12 12 21 3 12Z" fill="none" stroke="currentColor" strokeWidth="2" />}</svg>;
+  const source = { bombDefused: 'ui/defuser_white', bombExploded: 'weapons/c4', elimination: 'killfeed/icon_suicide', timeExpired: 'ui/clock', hostageRescued: 'ui/hostage_rescued' }[reason];
+  const label = { bombDefused: "Bomb defused", bombExploded: "Bomb exploded", elimination: "Elimination", timeExpired: "Time expired", hostageRescued: "Hostage rescued" }[reason] ?? "Unknown round result";
+  return source ? <Icon name={source} label={label} base={base} /> : <span className="icon-label" aria-label={label} title={label}>Unknown</span>;
 }
 export function RoundSituation({ state }) {
   const game = state.snapshot?.game;
@@ -75,7 +76,7 @@ export function Economy({ state, side }) {
   return <section className={`economy ${side === 'counterTerrorists' ? 'ct' : 't'}`} aria-label={`${side} economy`}><strong>{teamName(state.snapshot, side)}</strong>
     <span>CASH {sum(data.cash)}</span><span>EQUIPMENT {sum(data.equipment)}</span><small>KITS {data.kitsKnown ? `${data.kits} (${data.kitsKnown}/${data.alive.total} known)` : '–'} · UTILITY {data.inventoriesKnown ? `${data.utilities} entries (${data.inventoriesKnown}/${data.alive.total} inventories)` : '–'}</small></section>;
 }
-const killFlags = [['headshot', 'killfeed/icon_headshot', 'Headshot'], ['wallbang', 'killfeed/penetrate', 'Wallbang'], ['throughSmoke', 'killfeed/smoke_kill', 'Through smoke'], ['noScope', 'killfeed/noscope', 'No scope'], ['attackerBlind', 'killfeed/blind_kill', 'Attacker blind'], ['flashAssist', 'ui/stat_assists', 'Flash assist']];
+const killFlags = [['headshot', 'killfeed/icon_headshot', 'Headshot'], ['wallbang', 'killfeed/penetrate', 'Wallbang'], ['throughSmoke', 'killfeed/smoke_kill', 'Through smoke'], ['noScope', 'killfeed/noscope', 'No scope'], ['attackerBlind', 'killfeed/blind_kill', 'Attacker blind'], ['flashAssist', 'weapons/flashbang_assist', 'Flash assist']];
 const sideClass = side => side === 'counterTerrorists' ? 'ct' : side === 'terrorists' ? 't' : 'neutral';
 export function KillFeed({ state }) {
   if (!state.settings.showKillfeed) return null;

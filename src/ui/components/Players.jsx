@@ -14,13 +14,13 @@ export function Inventory({ player, full = false, state }) {
     </li>)}
   </ul>;
 }
-export function PlayerBadges({ player, state }) {
+export function PlayerBadges({ player, state, showHelmet = true }) {
   const base = state?.assetBase;
-  return <span className="equipment-badges">{player.helmet === true && <Icon name="weapons/helmet" label="Helmet" base={base} />}
+  return <span className="equipment-badges">{showHelmet && player.helmet === true && <Icon name="weapons/helmet" label="Helmet" base={base} />}
     {player.defuseKit === true && <Icon name="ui/defuser_white" label="Defuse kit" base={base} />}{hasBomb(player) && <Icon name="weapons/c4" label="Bomb carrier" base={base} />}
     {player.flashed > 0 && <Icon name="killfeed/blind_kill" label={`Flashed ${player.flashed}`} base={base} />}
     {player.smoked > 0 && <Icon name="killfeed/smoke_kill" label={`Smoked ${player.smoked}`} base={base} />}
-    {player.burning > 0 && <Icon name="weapons/molotov" label={`Burning ${player.burning}`} base={base} />}</span>;
+    {player.burning > 0 && <Icon name="weapons/inferno" label={`Burning ${player.burning}`} base={base} />}</span>;
 }
 export function PlayerRow({ player, state }) {
   const weapon = activeWeapon(player), dead = playerDead(player);
@@ -32,8 +32,8 @@ export function PlayerRow({ player, state }) {
       <LocalImage path={profile?.avatar} name={name} media={state.media} className="roster-avatar" optional />
       <strong className="player-name" title={name}>{name}</strong><span className="player-health">{dead ? <Icon name="killfeed/icon_suicide" label="Dead" base={state.assetBase} /> : statistic(player.health)}</span>
       <span className="player-kda" title="Kills / deaths / assists">{statistic(player.stats?.kills)}/{statistic(player.stats?.deaths)}/{statistic(player.stats?.assists)}</span></div>
-    <div className="player-bottom"><span className="player-armor"><Icon name="ui/armor" label="Armor" base={state.assetBase} />{statistic(player.armor)}</span>
-      <PlayerBadges player={player} state={state} /><Icon weapon={weapon} base={state.assetBase} /><Inventory player={player} state={state} /><span className="player-money">{money(player.money)}</span></div>
+    <div className="player-bottom"><span className="player-armor"><Icon name={player.helmet === true ? "weapons/armor_helmet" : "ui/armor"} label={player.helmet === true ? "Armor and helmet" : "Armor"} base={state.assetBase} />{statistic(player.armor)}</span>
+      <PlayerBadges player={player} state={state} showHelmet={false} /><Icon weapon={weapon} base={state.assetBase} /><Inventory player={player} state={state} /><span className="player-money">{money(player.money)}</span></div>
     <Meter value={player.health} label={`${name} health`} />
   </li>;
 }

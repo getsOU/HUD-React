@@ -11,12 +11,13 @@ import boltCatalog from '../public/assets/boltobserv/catalog.json' with { type: 
 import { readRadarCatalog } from '../src/model/assets.js';
 import { createRadarFlashTracker } from '../src/model/radar-flashes.js';
 
-let server, Hud, PlayerRow, ObservedPlayer, Inventory, Icon;
+let server, Hud, PlayerRow, ObservedPlayer, Inventory, Icon, RoundHistory;
 before(async () => {
   server = await createServer({ server: { middlewareMode: true, watch: null }, logLevel: 'error' });
   ({ Hud } = await server.ssrLoadModule('/src/ui/Hud.jsx'));
   ({ PlayerRow, ObservedPlayer, Inventory } = await server.ssrLoadModule('/src/ui/components/Players.jsx'));
   ({ Icon } = await server.ssrLoadModule('/src/ui/components/Icons.jsx'));
+  ({ RoundHistory } = await server.ssrLoadModule('/src/ui/components/Match.jsx'));
 });
 after(async () => { await server?.close(); });
 
@@ -194,4 +195,17 @@ test('missing weapon icon renders no unknown box while real named unknown equipm
 test('unknown health does not suppress an actual active weapon', () => {
   const player = { ...fixture('live').snapshot.game.players[0], health: null, isAlive: null, weapons: [staleCurrentWeapon()] };
   assert.match(renderPlayer(ObservedPlayer, player), /m4a1_silencer/);
+});
+
+
+test('round results use original clock and hostage SVGs without hand-drawn fallback paths', () => {
+  const state = fixture('live');
+  state.snapshot = { ...state.snapshot, game: { ...state.snapshot.game, roundNumber: 4, roundWins: [{roundNumber:1,winner:'counterTerrorists',reason:'timeExpired'}, {roundNumber:2,winner:'counterTerrorists',reason:'hostageRescued'}, {roundNumber:3,winner:'terrorists',reason:'unknown'}] } };
+  const html = renderToStaticMarkup(createElement(RoundHistory, {state,always:true}));
+  assert.match(html,/ui\/clock\.svg/); assert.match(html,/ui\/hostage_rescued\.svg/);
+  assert.match(html,/Unknown round result/);assert.doesNotMatch(html,/<svg|<path|<circle/);
+});
+test('an unknown artwork reference retains text without drawing a replacement symbol', () => {
+  const html = renderToStaticMarkup(createElement(Icon, {weapon:{name:null},label:'Unknown weapon'}));
+  assert.match(html,/Unknown weapon/);assert.doesNotMatch(html,/<img|<svg|<path/);
 });

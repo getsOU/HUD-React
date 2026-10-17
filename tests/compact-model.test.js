@@ -104,7 +104,7 @@ test('disposing the output aborts an in-flight catalog load and degrades cleanly
 });
 test('all original artwork bytes match their supplied Valve provenance inventory', async () => {
   const inventory = JSON.parse(await readFile(new URL('../public/assets/valve-assets.json', import.meta.url)));
-  assert.match(inventory.rights, /Not covered.*MIT/);
+  assert.match(inventory.rights, /Not covered by the HUD source license/);
   for (const file of inventory.files) {
     assert.match(file.path, /^assets\/[a-z0-9_./-]+$/); assert.ok(!file.path.includes('..'));
     const bytes = await readFile(new URL(`../public/${file.path}`, import.meta.url));
