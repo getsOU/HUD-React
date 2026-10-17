@@ -11,13 +11,13 @@ import boltCatalog from '../public/assets/boltobserv/catalog.json' with { type: 
 import { readRadarCatalog } from '../src/model/assets.js';
 import { createRadarFlashTracker } from '../src/model/radar-flashes.js';
 
-let server, Hud, PlayerRow, ObservedPlayer, Inventory, Icon, RoundHistory;
+let server, Hud, PlayerRow, ObservedPlayer, Inventory, Icon, RoundHistory, KillFeed;
 before(async () => {
   server = await createServer({ server: { middlewareMode: true, watch: null }, logLevel: 'error' });
   ({ Hud } = await server.ssrLoadModule('/src/ui/Hud.jsx'));
   ({ PlayerRow, ObservedPlayer, Inventory } = await server.ssrLoadModule('/src/ui/components/Players.jsx'));
   ({ Icon } = await server.ssrLoadModule('/src/ui/components/Icons.jsx'));
-  ({ RoundHistory } = await server.ssrLoadModule('/src/ui/components/Match.jsx'));
+  ({ RoundHistory, KillFeed } = await server.ssrLoadModule('/src/ui/components/Match.jsx'));
 });
 after(async () => { await server?.close(); });
 
@@ -219,6 +219,29 @@ test('observer reserves empty data cells and does not duplicate an original weap
   assert.match(html, /aria-label="5 \/ 30"/);
   for (const weapons of [[], armed.weapons]) {
     const markup = renderPlayer(ObservedPlayer, { ...armed, weapons });
-    for (const cell of ['weapon-cell', 'ammo-cell', 'utility-cell', 'reload']) assert.match(markup, new RegExp(`class="${cell}"`));
+    for (const cell of ['weapon-cell', 'ammo-cell', 'utility-cell']) assert.match(markup, new RegExp(`class="${cell}"`));
   }
+});
+
+test('utility renders two flashbang icons without a count label', () => {
+  const player = { ...fixture('live').snapshot.game.players[0], health: 100, weapons: [{ name: 'weapon_flashbang', type: 'grenade', ammoReserve: 2 }] };
+  for (const full of [false, true]) {
+    const html = renderPlayer(Inventory, player, { full });
+    assert.equal((html.match(/alt="Flashbang"/g) ?? []).length, 2);
+    assert.doesNotMatch(html, /utility-count|>2<|×/);
+  }
+});
+
+test('killfeed keeps full names, the assister side and meaningful icon order', () => {
+  const state = fixture('live');
+  const name = 'Complete player name without any abbreviation or ellipsis';
+  const entry = { id: 1, connectionId: 'connection', epoch: 1, killer: { name, side: 'counterTerrorists' }, assister: { name: `${name} assist`, side: 'terrorists' }, victim: { name: `${name} victim`, side: 'terrorists' }, weapon: 'weapon_ak47', attackerBlind: true, flashAssist: true, throughSmoke: true, noScope: true, wallbang: true, headshot: true };
+  state.snapshot = { ...state.snapshot, game: { ...state.snapshot.game, killFeed: [entry] } };
+  const html = renderToStaticMarkup(createElement(KillFeed, { state }));
+  assert.match(html, /class="kill-assist t"/);
+  assert.ok(html.includes(`${name} assist`));
+  assert.ok(html.includes(`${name} victim`));
+  assert.deepEqual([...html.matchAll(/alt="([^"]+)"/g)].map(match => match[1]), ['Attacker blind', 'Flash assist', 'AK47', 'Through smoke', 'No scope', 'Wallbang', 'Headshot']);
+  state.snapshot.game.killFeed = [{ ...entry, assister: null }];
+  assert.doesNotMatch(renderToStaticMarkup(createElement(KillFeed, { state })), /alt="Flash assist"/);
 });

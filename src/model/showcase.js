@@ -12,6 +12,7 @@ export const profileFor = (snapshot, metadata, steamId, reference = null) => cur
 export const playerName = (player, profile) => text(profile?.name, text(sourceName(player?.name)));
 export const weaponList = player => !playerDead(player) && Array.isArray(player?.weapons) ? player.weapons.filter(Boolean) : [];
 export const utility = player => weaponList(player).filter(weapon => weapon.type === 'grenade');
+export const utilityCopies = count => Number.isInteger(count) && count >= 0 && count <= 10 ? count : 1;
 export function compactUtility(player) {
   const groups = new Map();
   for (const weapon of utility(player)) {
@@ -94,16 +95,7 @@ export function seriesWinner(snapshot) {
   return winsA >= required && winsB < required ? match.teamA : winsB >= required && winsA < required ? match.teamB : null;
 }
 
-export function killEntries(snapshot) {
-  const events = Array.isArray(snapshot?.game?.killFeed) ? snapshot.game.killFeed : [];
-  const seen = new Set();
-  return events.filter(event => {
-    if (!event || !event.connectionId || !Number.isInteger(event.epoch) || !Number.isInteger(event.id)) return false;
-    const key = `${snapshot.sessionId}|${event.connectionId}|${event.epoch}|${event.id}`;
-    if (seen.has(key)) return false;
-    seen.add(key); return true;
-  }).slice(-6).map(event => ({ ...event, key: `${snapshot.sessionId}|${event.connectionId}|${event.epoch}|${event.id}` }));
-}
+export { killEntries } from './killfeed.js';
 
 const point = value => value && ['x', 'y', 'z'].every(key => typeof value[key] === 'number' && Number.isFinite(value[key]));
 const numeric = value => typeof value === 'string' && value.trim().length ? Number(value) : NaN;

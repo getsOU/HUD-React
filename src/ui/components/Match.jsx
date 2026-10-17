@@ -76,13 +76,15 @@ export function Economy({ state, side }) {
   return <section className={`economy ${side === 'counterTerrorists' ? 'ct' : 't'}`} aria-label={`${side} economy`}><strong>{teamName(state.snapshot, side)}</strong>
     <span>CASH {sum(data.cash)}</span><span>EQUIPMENT {sum(data.equipment)}</span><small>KITS {data.kitsKnown ? `${data.kits} (${data.kitsKnown}/${data.alive.total} known)` : '–'} · UTILITY {data.inventoriesKnown ? `${data.utilities} entries (${data.inventoriesKnown}/${data.alive.total} inventories)` : '–'}</small></section>;
 }
-const killFlags = [['headshot', 'killfeed/icon_headshot', 'Headshot'], ['wallbang', 'killfeed/penetrate', 'Wallbang'], ['throughSmoke', 'killfeed/smoke_kill', 'Through smoke'], ['noScope', 'killfeed/noscope', 'No scope'], ['attackerBlind', 'killfeed/blind_kill', 'Attacker blind'], ['flashAssist', 'weapons/flashbang_assist', 'Flash assist']];
+const shotFlags = [['throughSmoke', 'killfeed/smoke_kill', 'Through smoke'], ['noScope', 'killfeed/noscope', 'No scope'], ['wallbang', 'killfeed/penetrate', 'Wallbang'], ['headshot', 'killfeed/icon_headshot', 'Headshot']];
 const sideClass = side => side === 'counterTerrorists' ? 'ct' : side === 'terrorists' ? 't' : 'neutral';
 export function KillFeed({ state }) {
   if (!state.settings.showKillfeed) return null;
-  const kills = killEntries(state.snapshot);
+  const kills = state.killFeed ?? killEntries(state.snapshot);
   return <section className="killfeed" aria-label="Killfeed">{kills.length ? kills.map(kill => <article key={kill.key} className="kill-row" data-event-id={kill.id}>
-    <div><strong className={sideClass(kill.killer?.side)} title={sourceName(kill.killer?.name)}>{text(sourceName(kill.killer?.name), 'World')}</strong>{kill.assister && <span className="kill-assister" title={sourceName(kill.assister.name)}> + {text(sourceName(kill.assister.name))}</span>}<Icon weapon={kill.weapon} base={state.assetBase} /><strong className={sideClass(kill.victim?.side)} title={sourceName(kill.victim?.name)}>{text(sourceName(kill.victim?.name))}</strong></div>
-    <small>{killFlags.filter(([key]) => kill[key] === true).map(([, name, label]) => <Icon key={name} name={name} label={label} base={state.assetBase} />)}</small>
+    <span className={`kill-attacker ${sideClass(kill.killer?.side)}`}>{kill.attackerBlind && <Icon name="killfeed/blind_kill" label="Attacker blind" className="kill-modifier" base={state.assetBase} />}<span className="kill-name" data-kill-role="killer" title={sourceName(kill.killer?.name)}>{text(sourceName(kill.killer?.name), 'World')}</span></span>
+    {kill.assister && <span className={`kill-assist ${sideClass(kill.assister.side)}`}><span aria-hidden="true">+</span>{kill.flashAssist && <Icon name="weapons/flashbang_assist" label="Flash assist" className="kill-modifier" base={state.assetBase} />}<span className="kill-name" data-kill-role="assister" title={sourceName(kill.assister.name)}>{text(sourceName(kill.assister.name))}</span></span>}
+    <span className="kill-method"><Icon weapon={kill.weapon} className="kill-weapon" base={state.assetBase} />{shotFlags.filter(([key]) => kill[key] === true).map(([, name, label]) => <Icon key={name} name={name} label={label} className="kill-modifier" base={state.assetBase} />)}</span>
+    <span className={`kill-name kill-victim ${sideClass(kill.victim?.side)}`} data-kill-role="victim" title={sourceName(kill.victim?.name)}>{text(sourceName(kill.victim?.name))}</span>
   </article>) : null}</section>;
 }

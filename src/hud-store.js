@@ -2,6 +2,7 @@ import { panelSettings } from './model.js';
 import { adaptOptions, metadataKey, startMetadataPolling } from './model/metadata.js';
 import { loadRadarCatalog } from './model/assets.js';
 import { createRadarFlashTracker } from './model/radar-flashes.js';
+import { createKillFeedTracker } from './model/killfeed.js';
 
 const initial = () => ({
   snapshot: null,
@@ -16,6 +17,7 @@ const initial = () => ({
   radarTimelineAccepted: true,
   radarCatalog: [],
   radarFlashes: [],
+  killFeed: [],
   assetBase: null,
   now: Date.now(),
   media: () => null,
@@ -32,6 +34,7 @@ export function createHudStore(clientFactory) {
   let panelRevision = -1;
   const actions = new Set();
   const radarFlashTracker = createRadarFlashTracker();
+  const killFeedTracker = createKillFeedTracker();
   const listeners = new Set();
   const publish = patch => {
     state = { ...state, ...patch };
@@ -68,7 +71,8 @@ export function createHudStore(clientFactory) {
         if (!valid()) return;
         if (snapshot?.schemaVersion !== 2) {
           radarFlashTracker.clear();
-          publish({ snapshot: null, radarFlashes: [], message: 'Unsupported HUD protocol' });
+          killFeedTracker.clear();
+          publish({ snapshot: null, radarFlashes: [], killFeed: [], message: 'Unsupported HUD protocol' });
           return;
         }
         // A new session replaces all prior match/roster state. Never merge snapshots.
@@ -85,7 +89,7 @@ export function createHudStore(clientFactory) {
           if (radarTimelineAccepted) radarCursor = { key, sequence: radar.sequence, gameTimeSeconds: radar.gameTimeSeconds };
         }
         const now = Date.now();
-        publish({ ...reset, snapshot, now, radarFlashes: radarFlashTracker.update(snapshot, now), message: null, radarTimelineAccepted });
+        publish({ ...reset, snapshot, now, radarFlashes: radarFlashTracker.update(snapshot, now), killFeed: killFeedTracker.update(snapshot, now), message: null, radarTimelineAccepted });
         if (client.preview && client.options) {
           const metadata = adaptOptions(client.options, snapshot);
           publish({ metadata, metadataAvailable: metadata !== null });
@@ -120,7 +124,7 @@ export function createHudStore(clientFactory) {
         publish({ liveStatus: 'disconnected', panelStatus: 'disconnected', message: 'Open this HUD from sOU to connect', metadata: null, metadataAvailable: false });
       }
     });
-    ticker = setInterval(() => { if (valid()) { const now = Date.now(); publish({ now, radarFlashes: radarFlashTracker.read(now) }); } }, 50);
+    ticker = setInterval(() => { if (valid()) { const now = Date.now(); publish({ now, radarFlashes: radarFlashTracker.read(now), killFeed: killFeedTracker.read(now) }); } }, 50);
     ticker.unref?.();
   }
 
@@ -144,6 +148,7 @@ export function createHudStore(clientFactory) {
           panelRevision = -1;
           actions.clear();
           radarFlashTracker.clear();
+          killFeedTracker.clear();
           state = initial();
         }
       };

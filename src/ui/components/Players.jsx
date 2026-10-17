@@ -1,5 +1,5 @@
 import { activeWeapon, money, observerSlot, playerDead, roster, samePlayer, statistic, teamName } from '../../model.js';
-import { compactUtility, economy, hasBomb, playerCoverage, playerName, profileFor, weaponList } from '../../model/showcase.js';
+import { compactUtility, economy, hasBomb, playerCoverage, playerName, profileFor, utilityCopies, weaponList } from '../../model/showcase.js';
 import { rawWeapon, weaponLabel } from '../../model/assets.js';
 import { LocalImage, Meter, NumberStat } from './Common.jsx';
 import { Icon } from './Icons.jsx';
@@ -8,10 +8,9 @@ export function Inventory({ player, full = false, state }) {
   const weapons = full ? weaponList(player) : compactUtility(player);
   if (!weapons.length) return null;
   return <ul className={`inventory ${full ? 'full-inventory' : ''}`} aria-label={full ? 'Inventory' : 'Utility'}>
-    {weapons.map((weapon, i) => <li key={`${weapon.slot ?? 'slot'}-${i}`} data-utility={!full ? rawWeapon(weapon) : undefined} className={weapon.state === 'active' || weapon.state === 'reloading' ? 'active' : ''}>
+    {weapons.flatMap((weapon, i) => Array.from({ length: weapon.type === 'grenade' ? utilityCopies(weapon.ammoReserve) : 1 }, (_, copy) => <li key={`${weapon.slot ?? 'slot'}-${i}-${copy}`} data-utility={!full ? rawWeapon(weapon) : undefined} className={weapon.state === 'active' || weapon.state === 'reloading' ? 'active' : ''}>
       <Icon weapon={weapon} base={state?.assetBase} />{full && <><span>{weaponLabel(weapon)}</span>{weapon.type !== 'grenade' && weapon.type !== 'knife' && <small>{statistic(weapon.ammoClip)} / {statistic(weapon.ammoReserve)}</small>}</>}
-      {weapon.type === 'grenade' && <small className="utility-count">{weapon.ammoReserve === 0 || weapon.ammoReserve > 1 ? weapon.ammoReserve : ''}</small>}
-    </li>)}
+    </li>))}
   </ul>;
 }
 export function PlayerBadges({ player, state, showHelmet = true }) {
@@ -33,7 +32,7 @@ export function PlayerRow({ player, state }) {
       <strong className="player-name" title={name}>{name}</strong><span className="player-health">{dead ? <Icon name="killfeed/icon_suicide" label="Dead" base={state.assetBase} /> : statistic(player.health)}</span>
       <span className="player-armor"><Icon name={player.helmet === true ? 'weapons/armor_helmet' : 'ui/armor'} label={player.helmet === true ? 'Armor and helmet' : 'Armor'} base={state.assetBase} /><span>{statistic(player.armor)}</span></span>
       <span className="player-kda" title="Kills / deaths / assists">{statistic(player.stats?.kills)}/{statistic(player.stats?.deaths)}/{statistic(player.stats?.assists)}</span></div>
-    <div className="player-bottom"><span className="player-money">{money(player.money)}</span><span className="weapon-cell"><Icon weapon={weapon} base={state.assetBase} /></span><span className="utility-cell"><Inventory player={player} state={state} /></span><PlayerBadges player={player} state={state} showHelmet={false} /></div>
+    <div className="player-bottom"><span className="player-money">{money(player.money)}</span><span className="weapon-cell"><Icon weapon={weapon} base={state.assetBase} /></span><span className="loadout-details"><span className="utility-cell"><Inventory player={player} state={state} /></span><PlayerBadges player={player} state={state} showHelmet={false} /></span></div>
     <Meter value={player.health} label={`${name} health`} />
   </li>;
 }
@@ -62,7 +61,7 @@ export function ObservedPlayer({ state, player = state.snapshot?.game?.observedP
     <span className="observed-avatar-cell"><LocalImage path={profile?.avatar} name={name} media={state.media} className="observed-avatar" optional={!expanded} /></span>
     <div className="observed-main"><div className="observed-identity"><span className="observer-slot">{observerSlot(player.observerSlot)}</span><h2 title={name}>{name}</h2><PlayerBadges player={player} state={state} /></div>
       <div className="observed-weapon"><span className="weapon-cell"><Icon weapon={weapon} base={state.assetBase} /></span><span className="ammo-cell">
-        {weapon && weapon.type !== 'grenade' && weapon.type !== 'knife' && <strong className="ammo" aria-label={`${statistic(weapon.ammoClip)} / ${statistic(weapon.ammoReserve)}`}><span>{statistic(weapon.ammoClip)}</span><small>/</small><span>{statistic(weapon.ammoReserve)}</span></strong>}</span><span className="reload">{weapon?.state === 'reloading' ? 'RELOAD' : ''}</span><span className="utility-cell"><Inventory player={player} state={state} /></span></div></div>
+        {weapon && weapon.type !== 'grenade' && weapon.type !== 'knife' && <strong className="ammo" aria-label={`${statistic(weapon.ammoClip)} / ${statistic(weapon.ammoReserve)}`}><span>{statistic(weapon.ammoClip)}</span><small>/</small><span>{statistic(weapon.ammoReserve)}</span></strong>}{weapon?.state === 'reloading' && <span className="reload">RELOAD</span>}</span><span className="utility-cell"><Inventory player={player} state={state} /></span></div></div>
     <dl className="observed-vitals"><NumberStat label="HP" value={player.health} /><NumberStat label="ARM" value={player.armor} /></dl>
     <Meter value={player.health} label="Health" />
     {expanded && <div className="observed-extra"><span>K/D/A {statistic(player.stats?.kills)} / {statistic(player.stats?.deaths)} / {statistic(player.stats?.assists)}</span>
