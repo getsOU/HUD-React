@@ -3,3 +3,5 @@
 public/sdk/** -text -whitespace
 licenses/SOU-SDK-MIT.txt -text -whitespace
 *.png binary
+# Preserve original game assets byte for byte against the provenance inventory.
+public/assets/** -text
