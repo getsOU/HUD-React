@@ -4,8 +4,8 @@
     "label": "Display",
     "inputs": [
       { "type": "text", "name": "caption", "label": "Caption" },
-      { "type": "checkbox", "name": "showRosters", "label": "Show player rosters" },
-      { "type": "checkbox", "name": "showObservedPlayer", "label": "Show observed player" }
+      { "type": "checkbox", "name": "hideRosters", "label": "Hide team rosters" },
+      { "type": "checkbox", "name": "hideObservedPlayer", "label": "Hide observed player" }
     ]
   }
 ]

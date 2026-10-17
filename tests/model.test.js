@@ -17,11 +17,12 @@ test('missing and invalid values remain unknown, zero remains meaningful', () =>
   assert.equal(time(83.1), '1:24');
 });
 
-test('panel absence defaults true; explicit false is preserved', () => {
+test('panel absence is visible; only explicit true hide flags hide content', () => {
   assert.deepEqual(panelSettings(null), { caption: 'sOU BASIC', showRosters: true, showObservedPlayer: true });
-  assert.deepEqual(panelSettings({ values: { display: { caption: '  Finals  ', showRosters: false, showObservedPlayer: false } } }),
+  assert.deepEqual(panelSettings({ values: { display: { caption: '  Finals  ', hideRosters: true, hideObservedPlayer: true } } }),
     { caption: 'Finals', showRosters: false, showObservedPlayer: false });
-  assert.equal(panelSettings({ values: { display: { showRosters: 'false' } } }).showRosters, true);
+  assert.equal(panelSettings({ values: { display: { hideRosters: 'true', hideObservedPlayer: 1 } } }).showRosters, true);
+  assert.equal(panelSettings({ values: { display: { hideRosters: 'true', hideObservedPlayer: 1 } } }).showObservedPlayer, true);
 });
 
 test('team identity follows recognized explicit side resolution across a side swap', () => {

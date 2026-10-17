@@ -4,13 +4,28 @@ A small, transparent CS2 broadcast HUD built with React, Vite and the **public
 sOU HUD SDK**. This is an independent, MIT-licensed starting point for authors.
 It renders real protocol-v2 snapshots from the local sOU desktop host.
 
-Current HUD version: **0.1.1**.
+Current HUD version: **0.1.2**.
 
 ![Basic React HUD over a checkerboard behind its transparent output](docs/preview.png)
 
-The screenshot shows the actual Release package with synthetic example data in
-an isolated local package host. The checkerboard sits behind the embedded HUD
-to demonstrate transparency; it is not included in the HUD.
+The screenshot shows the actual Release package with synthetic example data and
+the initial sOU panel state in an isolated local package host. Both player
+sections are enabled. The checkerboard sits behind the embedded HUD to
+demonstrate transparency; it is not included in the HUD.
+
+### Visible roster and observed-player defaults in 0.1.2
+
+The team rosters and observed-player card are now visible by default. The sOU
+host initializes unchecked panel checkboxes to `false`; the previous **Show**
+fields therefore hid those components when the initial panel state arrived,
+or after a save that changed only the caption. Version 0.1.2 uses **Hide team
+rosters** and **Hide observed player** instead. Leave them unchecked to show
+both components. Changing only **Caption** keeps them visible.
+
+Import 0.1.2 and open a new output. Your caption carries over from the previous
+version. Visibility settings use new field IDs: if you want either component
+hidden, select its **Hide** checkbox once in the new version and save. Existing
+0.1.0 and 0.1.1 packages remain unchanged. No sOU host or SDK update is needed.
 
 ### Transparency correction in 0.1.1
 
@@ -56,8 +71,8 @@ npm run package
 `SOU.Hud.Tool` **0.2.0-preview.4** from nuget.org, packages and validates:
 
 ```text
-artifacts/sou-basic-react-0.1.1.souhud
-artifacts/sou-basic-react-0.1.1.souhud.sha256
+artifacts/sou-basic-react-0.1.2.souhud
+artifacts/sou-basic-react-0.1.2.souhud.sha256
 ```
 
 The build tree is `dist/hud.json` plus `dist/wwwroot`. The final package also
@@ -78,9 +93,11 @@ explained above; no developer tools are needed to import a ready-made package.
 2. Open **HUDs → Paket importieren** and select the `.souhud` file.
 3. Select **sOU Basic · React** and open its browser output. Use that sOU-generated
    output URL in OBS; do not open `index.html` as a file.
-4. Open the HUD panel. Under **Display**, set **Caption**, **Show player rosters**,
-   or **Show observed player**, then save. Missing checkbox values default to
-   visible; an explicitly saved `false` hides that component.
+4. Open the HUD panel. Under **Display**, set **Caption** and leave **Hide team
+   rosters** and **Hide observed player** unchecked to show both components.
+   Check either field to hide that component, then save. Saving only a caption
+   does not hide the rosters or observed-player card. Uncheck a Hide field and
+   save to show its component again.
 5. Configure CS2 GSI in sOU and spectate a match. Until game data arrives, the HUD
    shows a waiting state. An observed-player card appears only when supplied by
    the source. `0` ammunition/health is retained; an absent value stays `–`.
@@ -109,7 +126,7 @@ the normal "Open this HUD from sOU" message.
 For real snapshots, build/package/import a new version in sOU. A Vite server is
 not a replacement for the installed package URL or the sOU browser session.
 There is no insecure cross-origin development proxy. The build uses relative
-asset paths and runs under `/hud-packages/sou-basic-react/0.1.1/` with the host's
+asset paths and runs under `/hud-packages/sou-basic-react/0.1.2/` with the host's
 Content Security Policy; no CDN, inline script, `eval`, telemetry, remote fonts,
 or external assets are required.
 
@@ -144,7 +161,8 @@ as the [Blazor WASM sibling](https://github.com/getsOU/sOU-HUD-WASM) does.
 - `public/panel.json`: public HUD panel contract.
 - `scripts`: pinned SDK synchronization, package assembly and validation.
 - `tests`: missing data, team swaps/ambiguity, source timers, observer ordering,
-  panel defaults, new sessions and StrictMode-safe cleanup.
+  actual panel-schema defaults, caption-only saves, independent hide controls,
+  new sessions and StrictMode-safe cleanup.
 
 The CI workflow checks the SDK origin, lint, tests and installable package. It
 requires no publication secret. An automated build or a synthetic browser

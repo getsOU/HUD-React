@@ -34,8 +34,9 @@ export function panelSettings(state) {
   const display = state?.values?.display;
   return {
     caption: text(display?.caption, DEFAULT_CAPTION),
-    showRosters: display?.showRosters !== false,
-    showObservedPlayer: display?.showObservedPlayer !== false,
+    // sOU initializes checkbox fields to false. Only an explicit hide request hides content.
+    showRosters: display?.hideRosters !== true,
+    showObservedPlayer: display?.hideObservedPlayer !== true,
   };
 }
 

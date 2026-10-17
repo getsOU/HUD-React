@@ -1,5 +1,8 @@
 // Synthetic and local-only. This module is removed from production by Vite.
+import manifest from '../../hud.json' with { type: 'json' };
+
 export function createPreviewClient(mode) {
+  const identity = { id: manifest.id, version: manifest.version };
   const player = (side, index) => ({
     steamId: `fixture-${side}-${index}`, name: `Example ${side === 'counterTerrorists' ? 'CT' : 'T'} ${index}`,
     side, observerSlot: side === 'counterTerrorists' ? index : index === 5 ? 0 : index + 5,
@@ -27,14 +30,14 @@ export function createPreviewClient(mode) {
     },
   };
   return {
-    preview: true, identity: { id: 'sou-basic-react', version: '0.1.0' },
+    preview: true, identity,
     watch(receive, { signal, status }) {
       if (!signal.aborted) { status('live', 'connected'); receive(snapshot); }
     },
     watchPanel(receive, { signal, status }) {
       if (!signal.aborted) {
         status('panel', 'connected');
-        receive({ hudId: 'sou-basic-react', version: '0.1.0', state: { values: { display: { caption: 'sOU BASIC · PREVIEW' } } } });
+        receive({ hudId: identity.id, version: identity.version, state: { values: { display: { caption: 'sOU BASIC · PREVIEW', hideRosters: false, hideObservedPlayer: false } } } });
       }
     },
   };
