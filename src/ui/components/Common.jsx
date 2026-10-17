@@ -3,13 +3,13 @@ import { number, statistic, text } from '../../model.js';
 import { matchOf, startCountdown } from '../../model/showcase.js';
 import { time } from '../../model.js';
 
-export function LocalImage({ path, name = '', media, className = '' }) {
+export function LocalImage({ path, name = '', media, className = '', optional = false }) {
   const [failed, setFailed] = useState(null);
   const source = media?.(path);
   const initials = typeof name === 'string' && name.trim() && name !== '–'
     ? name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join('').toUpperCase() : '?';
   return source && failed !== source ? <img className={`local-image ${className}`} src={source} alt={name} onError={() => setFailed(source)} />
-    : <span className={`image-fallback ${className}`} aria-label={name || 'No image available'}>{initials}</span>;
+    : optional ? null : <span className={`image-fallback ${className}`} aria-label={name || 'No image available'}>{initials}</span>;
 }
 export function Meter({ value, label }) {
   return number(value) === null ? <span className="meter unknown" aria-label={`${label} unknown`} />

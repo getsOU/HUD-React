@@ -249,6 +249,19 @@ test('stale, future or rejected HLAE timelines fall back to actual GSI positions
   }
 });
 
+test('fresh HLAE health overrides old GSI death state and expires with the radar frame', () => {
+  const source = radarSnapshot();
+  source.game.players[0].health = 0;
+  source.game.radar.players[0].health = 100;
+  assert.equal(radarView(source, radarConfig, radarTime).players[0].dead, false);
+  assert.equal(radarView(source, radarConfig, radarTime + 251).players[0].dead, true);
+  source.game.players[0].health = 100;
+  source.game.radar.players[0].health = 0;
+  assert.equal(radarView(source, radarConfig, radarTime).players[0].dead, true);
+  source.game.radar.players[0].health = null;
+  assert.equal(radarView(source, radarConfig, radarTime).players[0].dead, false);
+});
+
 test('invalid HLAE timeline metadata cannot replace a valid GSI position', () => {
   const invalid = [
     { epoch: null }, { epoch: -1 }, { epoch: 1.5 },
@@ -272,7 +285,7 @@ test('radar drops out-of-bounds positions instead of clamping them into false ma
   source.game.players = [];
   source.game.radar = null;
   assert.deepEqual(radarView(source, {}, radarTime).players, []);
-  assert.match(radarView(source, {}, radarTime).label, /not a map overview/);
+  assert.match(radarView(source, {}, radarTime).label, /Map unavailable.*relative positions/);
 });
 
 test('missing Steam IDs cannot join an unrelated HLAE pose onto an unidentified GSI player', () => {

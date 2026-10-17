@@ -50,7 +50,7 @@ export function createPreviewClient(mode) {
   };
   const participant = p => ({ steamId: p.steamId, name: p.name, side: p.side, entityIndex: p.observerSlot });
   const game = {
-    map: 'de_ancient', roundNumber: 20, phase: mode === 'postmatch' ? 'gameOver' : 'live', roundPhase: 'live', availableSections: ['allPlayers', 'map', 'bomb', 'grenades'],
+    map: mode === 'dust2' ? 'de_dust2' : 'de_ancient', roundNumber: 20, phase: mode === 'postmatch' ? 'gameOver' : 'live', roundPhase: 'live', availableSections: ['allPlayers', 'map', 'bomb', 'grenades'],
     ct: { name: null, score: 11, timeoutsRemaining: 2 }, t: { name: null, score: 8, timeoutsRemaining: 1 },
     players, observedPlayer: players[1], countdown: { phase: mode === 'break' ? 'paused' : 'live', secondsRemaining: 83.3 },
     bomb: { state: mode === 'bomb' ? 'planted' : 'dropped', position: { x: 0, y: 0, z: 0 }, secondsRemaining: mode === 'bomb' ? 32.8 : null },

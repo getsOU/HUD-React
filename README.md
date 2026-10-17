@@ -1,18 +1,22 @@
 # sOU Showcase HUD · React
 
-A transparent, MIT-licensed CS2 broadcast HUD and a practical reference for authors
-using **React and the public sOU HUD SDK**. It includes a live overlay and seven
-presentation views. Every display uses public protocol-v2 snapshots, optional
+A transparent CS2 broadcast HUD with MIT-licensed code and a practical reference
+for authors using **React and the public sOU HUD SDK**. It includes a live overlay
+and seven presentation views. Every display uses public protocol-v2 snapshots, optional
 local profile metadata, or an explicit operator setting. It does not invent
 players, match results, events or statistics.
 
-Current HUD version: **0.2.0**. Package ID: `sou-basic-react`.
+Current HUD version: **0.3.0**. Package ID: `sou-basic-react`.
 
-![React showcase HUD inside the transparent sOU output frame](docs/preview.png)
+![Packaged React HUD with calibrated radar, local icons and compact edge displays over a CS2 reference scene](docs/preview.png)
 
-The example image uses the real packaged renderer with synthetic data in an
-isolated host. The checkerboard is behind the HUD and demonstrates transparency;
-it is not part of the overlay. Synthetic previews are excluded from production.
+The example image uses the real packaged renderer with synthetic HUD data in an
+isolated host over an unmodified [official CS2 reference screenshot from Steam](https://store.steampowered.com/app/730/CounterStrike_2/).
+The Valve game image is only the test backdrop and is not included in the HUD.
+This is a browser preview, not a native CS2/OBS capture. Synthetic previews
+are excluded from production. Original Valve weapon/equipment silhouettes and
+map artwork have separate copyright notices; the code's MIT license does not
+cover those graphics. See [asset provenance](licenses/VALVE-ASSETS.md).
 
 ## Install and open an output
 
@@ -36,12 +40,43 @@ no Node.js, .NET SDK, source checkout or separate web server.
 
 The composition is a 1920 × 1080 reference canvas, scaled uniformly into the
 available viewport with transparent letterboxing. Use a 1920 × 1080 OBS browser
-source. Keep the browser source transparent; the game area is deliberately open.
-The output does not load remote fonts, CDNs, tracking, or foreign HUD assets.
+source. Keep the browser source transparent. Version 0.3.0 places normal live
+information at the edges: two-line player cards, weapon/equipment icons, economy
+inside each roster footer and a compact observer card. Detailed equipment,
+round statistics and map cards remain in the presentation views. Missing live
+portraits/logos use no replacement box. No remote fonts, CDNs or tracking load.
+
+Known maps, including **Dust2**, automatically select a bundled calibrated radar
+image. Leave the optional radar override fields empty to use it. You do not need
+to find an overview image or configure world bounds for a supported map.
 
 An imported version has its own immutable files. Install a new version and open
 an output for that version to update; an already running older output keeps its
-original files. Existing 0.1.x packages and settings are not overwritten.
+original files. Existing 0.1.x and 0.2.x packages/settings are not overwritten.
+
+## Compact live composition
+
+All coordinates below use the 1920 × 1080 reference canvas and scale together;
+smaller 16:9 windows keep the same composition. These boxes also guide authors
+customizing the layout.
+
+| Element | Reference placement / maximum size |
+| --- | --- |
+| Match header | x480, y24 · 960 × 72 |
+| Map/series line | y100–120 |
+| Round history | x720, y128 · 480 × 16 |
+| Radar | x24, y24 · 288 × 288 |
+| CT / T rosters | x24 / x1584, y738 · 312 × 318 each, including five cards and economy footer |
+| Player card | Two lines, at most 54 px high |
+| Observed player | x700, y950 · 520 × 82 |
+| Sponsors | x816, y1040 · 288 × 24 |
+| Killfeed | x1560, y32 · at most 336 × 180 |
+
+Preserve the game region x360–1560, y160–930 when customizing normal Live and keep
+normal opaque surfaces within 25% of the canvas. An explicitly triggered lower
+third can temporarily enter that area. Use Statistics or Spotlight for detailed
+player data and the other dedicated views for match/series presentation, rather
+than enlarging live panels over the game.
 
 ## Eight views
 
@@ -50,7 +85,7 @@ There are no separate HTML builds or router dependencies.
 
 | View | Relative output path | What it shows |
 | --- | --- | --- |
-| Live | `index.html` | Match header, round/bomb state, rosters, observed player, radar, killfeed, economy, round history, series and production overlays. The central game area stays clear. |
+| Live | `index.html` | Compact edge header, two-line rosters with economy footers, observed player, automatic map radar, real killfeed, small round/series indicators and production overlays. |
 | Prematch | `views/prematch` | Active match before GSI, both managed teams, available logos, planned start/countdown, competition context and series. |
 | Lineups | `views/lineups` | Actual matching team rosters and available local player portraits. Missing roster metadata stays unavailable rather than becoming a guessed five-player lineup. |
 | Map veto | `views/veto` | Explicit picks, bans and decider, their recorded team assignments, play order and map results. |
@@ -61,7 +96,7 @@ There are no separate HTML builds or router dependencies.
 
 Open a dedicated subview through sOU's output selection. Relative paths above
 are resolved beneath the installed package root, for example
-`/hud-packages/sou-basic-react/0.2.0/views/veto`. Keep the sOU-generated address,
+`/hud-packages/sou-basic-react/0.3.0/views/veto`. Keep the sOU-generated address,
 browser session and base path. Explicit subviews ignore the main scene selector;
 changing **Main output scene** does not turn a dedicated statistics output into
 another view.
@@ -71,18 +106,18 @@ another view.
 | Component | Public source | Limits and missing-data behavior |
 | --- | --- | --- |
 | Match header and identities | `managedMatch` (also available before GSI), explicit CT/T assignments and `game.ct`/`game.t` | Team A/B are stable match identities, not permanent CT/T sides. Only matching IDs and recognized/inferred/manual assignments resolve managed side names. Unknown assignments stay explicit. |
-| Player rosters | `game.players`, typed state, weapons and stats | Observer digits, HP/armor, helmet/kit/bomb, inventory/ammo, utility, money/equipment, K/D/A, round kills/damage and supplied flash/smoke/burn values. Missing HP does not mean alive; zero remains zero. |
-| Observed player | `game.observedPlayer` | Actual observed identity and inventory; no first-player fallback. Optional portraits require matching local metadata. |
+| Player rosters | `game.players`, typed state, weapons and stats | Live keeps five two-line cards per side: observer digits, name, HP/armor, equipment/condition icons, active weapon, utility, money and K/D/A. Detailed inventory/ammo, equipment value and round statistics remain available in the detail views. Missing HP does not mean alive; zero remains zero. |
+| Observed player | `game.observedPlayer` | Actual observed identity, HP/armor, active weapon/ammo and utility; no first-player fallback. Recorded ADR/HS and full equipment belong to expanded Spotlight. Optional portraits require a matching profile/reference; missing images consume no live placeholder space. |
 | Round state/history | `roundNumber`, `roundPhase`, `roundWinner`, `roundWinReason`, `roundWins`, source countdown | History retains the winner's side at that round. A side is not relabeled with today's team assignment. No guessed clutch, MVP or overtime result. |
 | Bomb/defuse | `game.bomb` and source seconds; `game.roundBomb` as a state fallback | Planting/planted/defusing/defused/exploded are explicit. A state fallback does not invent a timer. Seconds are source values; no invented fixed plant or defuse duration and no authoritative progress from an unknown baseline. |
-| Economy and alive counts | Complete known values for each side's supplied players | Missing summands are identified; a partial roster is not presented as a complete team total. |
-| Killfeed | `game.killFeed` | Real killer/assist/victim/weapon and supplied special flags, identified by connection + epoch + event ID. No inferred kills from changes in HP. |
-| Radar | Fresh, timeline-compatible `game.radar`, otherwise GSI player/bomb/grenade positions | Own MIT renderer. The default is a labeled relative world-position view, not a map. Local calibrated overviews are optional; details below. |
+| Economy and alive counts | Complete known values for each side's supplied players | Compact roster footers show cash/equipment totals (`*` means partial coverage) and known kits. Missing summands are not presented as a complete team total. |
+| Killfeed | `game.killFeed` | Real killer/assist/victim and local weapon/flag icons, identified by connection + epoch + event ID. No inferred kills from changes in HP. |
+| Radar | Bundled exact-map catalog plus fresh, timeline-compatible `game.radar`, otherwise GSI player/bomb/grenade positions | Own MIT renderer with actual Valve overview artwork and original calibration. Known maps select it automatically; custom local overrides take priority. Unknown/unavailable maps use an explicitly labeled relative-position fallback. |
 | Prematch/lineups | Managed match, competition, planned `startsAt`, optional matching local metadata | No prefilled players or imported roster assumptions. Missing start time means no countdown. |
 | Series/veto/results | Managed map entries, explicit `number`/`playNumber`, status, result and `winnerTeamId` | Picks/bans and winners are never derived from list order or from the current scoreboard. Unknown team IDs stay unresolved. |
 | Statistics | Player stats and `recordedStats` | ADR/HS are shown only when recorded. Rounds and `coversWholeMatch` distinguish a partial recording from full-match coverage. There are no guessed ratings or win probabilities. |
 | Spotlight | Resolved public panel references, matching snapshot and optional metadata | An operator highlight, not an automatically awarded MVP. Unknown or stale references never silently become another person/team. |
-| Branding | Managed competition logo/sponsors and selected local panel images | Local authorized media only. Failed images degrade to a neutral monogram or empty image area. |
+| Branding | Managed competition logo/sponsors and selected local panel images | Local media only. Missing/failed portraits and team logos disappear in compact Live; presentation views retain neutral image fallbacks. |
 | Production | Explicit panel title/subtitle, ticker, replay/status label and lower-third action | Manual text is not a detected replay or game event. It never drives CS2 camera controls. |
 
 Connection status and data freshness are separate. Waiting, stale, unknown and
@@ -90,6 +125,12 @@ unsupported data are explicit; missing values use `–` or an unavailable state.
 Source countdowns display received seconds and do not continue through missing
 updates. A planned-start countdown instead uses the actual absolute `startsAt`
 time. No automatic winner is asserted from incomplete series data.
+
+GSI/HLAE player and killfeed names decode standard HTML named/numeric entities
+**once**, using pinned **he 2.0.0 (MIT)**, before rendering as ordinary escaped
+React text. For example, `&amp;lt;` becomes the literal text `&lt;`, not a second
+decoded character or executable markup. No source HTML is executed, and
+profile/operator text is not rewritten.
 
 ## HUD panel reference
 
@@ -104,11 +145,11 @@ component. Caption-only saves keep every unrelated component visible.
 | --- | --- | --- |
 | `display.caption` | Scoreboard caption · text | Caption in the match header; empty text uses the HUD default. |
 | `display.scene` | Main output scene · select | `live`, `prematch`, `lineups`, `veto`, `break`, `postmatch`, `statistics`, `spotlight`. Empty/unknown selections use Live. Dedicated subviews retain their own scene. |
-| `display.hideRosters` | Hide team rosters · checkbox | Hides both side rosters in Live. Observer digits otherwise remain visible when known. |
+| `display.hideRosters` | Hide team rosters · checkbox | Hides both player lists in Live; the economy footer has its own independent Hide control. Observer digits otherwise remain visible when known. |
 | `display.hideObservedPlayer` | Hide observed player · checkbox | Hides the actual observed-player card. |
 | `display.hideRadar` | Hide radar · checkbox | Hides the radar component. |
 | `display.hideKillfeed` | Hide killfeed · checkbox | Hides the real-event killfeed. |
-| `display.hideEconomy` | Hide economy · checkbox | Hides side economy summaries. |
+| `display.hideEconomy` | Hide economy · checkbox | Hides the compact roster economy footers independently of the player cards. |
 | `display.hideRoundHistory` | Hide round history · checkbox | Hides the round-history strip. |
 | `display.hideSeries` | Hide map series · checkbox | Hides the shared compact series strip. |
 | `display.hideSponsors` | Hide sponsors · checkbox | Hides competition and additional sponsor presentation. |
@@ -153,41 +194,69 @@ not activate another sOU match, edit a roster, or move the spectator camera.
 
 | Field ID | UI label / type | Effect |
 | --- | --- | --- |
-| `branding.logo` | Broadcast logo · image | Optional local broadcast mark. |
+| `branding.logo` | Broadcast logo · image | Optional local broadcast mark in the presentation headers. |
 | `branding.sponsors` | Additional sponsors · images | Up to 16 optional local sponsor images alongside actual competition sponsors. |
 
 The sponsor rail rotates through unique competition/additional images every eight
 seconds. Choose media in sOU rather than entering external image URLs. Neither a
 logo nor a sponsor selection grants rights to an image; use material you may broadcast.
 
-### Radar overview (optional)
+### Automatic radar and optional overview override
+
+The shipped catalog contains **14 exact map identifiers and 17 PNG overviews**:
+`cs_italy`, `cs_office`, `de_ancient`, `de_ancient_night`, `de_ancient_v1`,
+`de_anubis`, `de_cache`, `de_dust2`, `de_inferno`, `de_mirage`, `de_nuke`,
+`de_overpass`, `de_train` and `de_vertigo`. Map names must match exactly; an unknown
+or workshop-specific name is not guessed from a prefix.
+
+No override is needed for these maps. The following fields replace the automatic
+overview only when the selected local image, exact current map name and all four
+world bounds are valid.
 
 | Field ID | UI label / type | Effect |
 | --- | --- | --- |
-| `radar.overview` | Local overview image · image | Optional local map image for which you hold the necessary rights. |
+| `radar.overview` | Local overview image · image | Optional local map image for which you hold the necessary rights; together with valid bounds, overrides the bundled map. |
 | `radar.mapName` | Exact map name · text | Must match the current source map name exactly, for example `de_mirage`. |
 | `radar.minX` | World X at image left · text | Finite world coordinate at the image's left edge. |
 | `radar.maxX` | World X at image right · text | Finite coordinate greater than `minX`. |
 | `radar.minY` | World Y at image bottom · text | Finite world coordinate at the bottom edge. |
 | `radar.maxY` | World Y at image top · text | Finite coordinate greater than `minY`. |
 
-Without a valid image, exact map match and all four valid bounds, the radar stays
-in **relative world-position** mode. It has no guessed map geometry. Coordinates
-are native CS2 world units, not meters; negative coordinates are valid. Calibrate
-the image edges rather than choosing a visual scale by eye:
+An incomplete/invalid custom configuration leaves automatic map selection in
+place. A failed custom image also falls back to the matching bundled map. If
+that bundled image fails, or no matching map/catalog is available, the radar
+labels its **relative-position fallback** without retrying the failed sources
+in a loop. That fallback is not a calibrated map. Coordinates are native CS2 world units, not meters;
+negative coordinates are valid. For a custom image, calibrate its edges:
 
 ```text
 horizontal fraction = (worldX - minX) / (maxX - minX)
 vertical fraction   = (maxY - worldY) / (maxY - minY)
 ```
 
-This simple axis-aligned projection does not rotate an overview or determine
-multi-floor layers. Use an appropriately oriented local image and check known
-positions. No Valve overview images, third-party HUD radar assets or GPL map
-projection tables are bundled. The display labels its source and calibration
-mode. A fresh HLAE radar is used only on the compatible timeline; stale or
-incompatible radar data cannot override the GSI fallback. Missing position and
-orientation values remain missing.
+The custom override is axis-aligned and has no automatic floor metadata. Use an
+appropriately oriented image and check known positions. The bundled catalog at
+`public/assets/radar/catalog.json` instead uses the original overview definitions:
+
+```text
+horizontal fraction = (worldX - posX) / (width * scale)
+vertical fraction   = (posY - worldY) / (height * scale)
+```
+
+Nuke, Train and Vertigo have lower-floor images with explicit altitude ranges.
+The observed player's fresh HLAE Z, otherwise its GSI Z, selects a layer. Minimum
+altitude is inclusive and maximum altitude exclusive; without usable altitude,
+the main/default layer is used. Players on another declared floor remain visible
+with dimmed/dashed markers. Bombsite labels come only from the original overview coordinates;
+they do not invent floor assignments for those sites.
+
+The catalog loads once per output lifetime from its own installed package base,
+with a three-second timeout, 128 KiB size limit and cancellation on disposal.
+Images load locally; there are no map-service requests. HLAE positions require a
+compatible timeline and an age from 0 through 750 ms; stale/incompatible samples
+fall back to GSI. Missing positions and directions remain missing. Actual
+calibration and artwork reflect the recorded CS2 build and may need an asset
+update after game patches. See [provenance and hashes](licenses/VALVE-ASSETS.md).
 
 ## Optional local metadata and media
 
@@ -208,10 +277,12 @@ independently: unavailable metadata leaves normal snapshot and panel displays
 working. No URL, account token, diagnostic token or embedded credentials need
 to be configured.
 
-Images must be local `/cast-media/` references and are resolved through the
-public SDK's media helper. External, cross-origin and malformed paths are
-rejected. Camera URLs in metadata are not embedded automatically. Failed image
-loads use a neutral fallback, never someone else's portrait.
+Operator/profile images must be local `/cast-media/` references and are resolved
+through the public SDK's media helper. Bundled icons/overviews resolve relative
+to this installed package's base. External, cross-origin and malformed media
+paths are rejected. Camera URLs in metadata are never embedded automatically.
+Missing/failed optional Live images leave no box; presentation views retain a
+neutral fallback, never someone else's portrait.
 
 ## Build, verify and package
 
@@ -232,13 +303,14 @@ npm run package
 `SOU.Hud.Tool` **0.2.0-preview.4**, then packs and validates:
 
 ```text
-artifacts/sou-basic-react-0.2.0.souhud
-artifacts/sou-basic-react-0.2.0.souhud.sha256
+artifacts/sou-basic-react-0.3.0.souhud
+artifacts/sou-basic-react-0.3.0.souhud.sha256
 ```
 
 `npm run build` creates `dist/hud.json` and `dist/wwwroot` without packaging.
-The archive includes the HUD, SDK and production dependency licenses. Its
-filename comes from the manifest ID/version. Keep `hud.json` and `package.json`
+The archive includes HUD/SDK/dependency licenses and separate Valve asset notices
+and provenance manifests. Its filename comes from the manifest ID/version.
+Keep `hud.json` and `package.json`
 aligned when changing a version. ZIP timestamps can make independent rebuilds
 differ; verify a download against its own published checksum, not a local rebuild.
 Never overwrite an already published tag or package.
@@ -284,6 +356,8 @@ preview. Choose any view with `?preview=live`, `?preview=prematch`,
 `?preview=waiting`, `?preview=bomb`, `?preview=unresolved`, `?preview=stale`
 and `?preview=missing`. These make no sOU requests and never send fixtures into
 a real cast.
+Use `?preview=dust2` for the same synthetic live display on the bundled,
+automatically calibrated Dust2 overview.
 Opening the development server without `preview` does not manufacture a game;
 it shows the normal instruction to open the installed HUD from sOU. Production
 builds exclude the fixture module, regardless of query parameters.
@@ -301,11 +375,15 @@ scripts, `eval`, remote fonts or runtime CDN requests.
 | `src/model.js` | Shared missing-value formatting, source clock and explicit team/side resolution. |
 | `src/model/panel.js` | Panel normalization and installed subview selection. |
 | `src/model/showcase.js` | Pure lineup, series, statistics, economy, event and radar selectors. |
+| `src/model/assets.js` | Safe package-relative assets, bounded catalog loading, exact-map/layer selection and weapon labels. |
+| `src/model/source-name.js` | Single-pass source-name entity decoding through pinned MIT library he. |
 | `src/model/metadata.js` | Narrow optional metadata adapter and bounded same-origin polling. |
 | `src/hud-store.js` | Shared SDK lifetime, session/timeline replacement, panel actions and presentation time. |
 | `src/ui/` | Reusable React components and view compositions. |
 | `src/preview/` | Explicit development-only synthetic examples. |
 | `public/panel.json` | The actual public panel schema, using all nine supported field types. |
+| `public/assets/` | Local game silhouettes, overview PNGs, original calibration and factual map catalog. |
+| `licenses/VALVE-ASSETS.md` | Separate game-artwork rights/provenance; `licenses/valve-assets.json` records file hashes. |
 | `scripts/` | Verified public SDK import, package assembly, validation and release guards. |
 
 The public SDK owns browser-session setup and separate live/panel SignalR
@@ -317,22 +395,31 @@ Replayable panel configuration and one-shot actions are handled separately.
 
 Display selectors stay pure and components consume prepared values. Tests cover
 missing/unrecognized data, side swaps, observer ordering, honest totals and
-recording coverage; radar calibration/source fallback; explicit map decisions;
+recording coverage; exact-map/floor calibration, asset paths, catalog bounds and
+radar source/image fallback; single-pass source-name decoding; explicit map decisions;
 panel references, host-initialized false values, caption-only saves and independent
 hide controls; action identity/replay and session/lifetime cleanup. The build
 checks the unchanged public SDK and validates the actual installable archive.
 
-A successful automated build or synthetic browser check is not native CS2/OBS
-acceptance. Check real GSI/HLAE, output transparency, frame behavior, performance,
-reconnects and your own overlays in the target setup before a live cast.
+A successful automated build or checkerboard transparency check does not establish
+that an overlay leaves enough game visible. Review the actual packaged renderer
+over visible gameplay at 1920 × 1080, 1280 × 720 and inside a wider frame, including
+long names, all five roster rows, icons and calibrated Dust2. Measure live surface
+bounds when customizing. This is separate from native CS2/OBS acceptance; check
+real GSI/HLAE, output transparency, performance and reconnects in the target setup.
 
 ## Earlier corrections retained
+
+**0.2.0: eight broadcast views.** Match/lineup/veto/break/results/statistics/spotlight
+presentation and the full public panel were introduced alongside Live. Version
+0.3.0 retains those scenes and field IDs while moving detailed information out of
+the normal live composition. Original 0.2.0 files and release assets stay unchanged.
 
 **0.1.2: visible standard player displays.** sOU initializes a missing checkbox to
 `false`. The earlier Show controls hid the roster/observed card on normal panel
 initialization and caption-only saves. Since 0.1.2, `display.hideRosters` and
 `display.hideObservedPlayer` hide only when explicitly checked. Those IDs and the
-caption remain supported in 0.2.0. When upgrading from 0.1.0/0.1.1, set any desired
+caption remain supported in 0.3.0. When upgrading from 0.1.0/0.1.1, set any desired
 Hide options once; the old Show IDs are not reused.
 
 **0.1.1: transparent host-frame canvas.** The original 0.1.0 forced a dark root
@@ -345,10 +432,20 @@ normal host frame over a visible background; computed CSS alone is insufficient.
 ## License and author references
 
 This HUD's own code is **MIT**. Preserve `LICENSE`, `THIRD-PARTY-NOTICES.md` and
-included dependency notices when reusing it. SDK/SignalR/React licenses are
-included in the packaged output. No third-party broadcast HUD layout, weapon
-icons, player photos, fonts or radar data are copied. Media you select separately
-retains its own rights. Use of sOU names grants no separate trademark rights.
+included dependency notices when reusing it. SDK/SignalR/React/he licenses are
+included in the packaged output. The **101 local equipment silhouettes**, UI/
+killfeed symbols, **17 overview PNGs** and original overview definitions exported
+from CS2 belong to **Valve Corporation and the respective creators**. They are
+not MIT-licensed by this project. The exporter tool's MIT license likewise does
+not relicense game artwork. No Valve endorsement or general asset redistribution/
+commercial permission is asserted.
+
+[Game-artwork notice](licenses/VALVE-ASSETS.md) identifies CS2 build `25966348`,
+original VPK entries, export tooling and coordinate conventions;
+[the provenance manifest](licenses/valve-assets.json) records source/export hashes.
+Both are included in the installable package. No GPL HUD layout, renderer or
+projection tables are copied. Separately selected media retains its own rights;
+sOU and Counter-Strike names confer no separate trademark rights.
 
 [Author guide](https://www.getsou.app/docs/hud-entwicklung) ·
 [Live API](https://www.getsou.app/docs/hud-api) ·

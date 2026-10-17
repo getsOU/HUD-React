@@ -48,7 +48,8 @@ export function teamName(snapshot, side) {
   const slot = side === 'counterTerrorists' ? 'ct' : 't';
   const team = sideTeam(snapshot, side);
   if (team) return text(team.name, text(team.shortName, side === 'counterTerrorists' ? 'CT' : 'T'));
-  return text(game?.[slot]?.name, side === 'counterTerrorists' ? 'CT' : 'T');
+  const source = text(game?.[slot]?.name, side === 'counterTerrorists' ? 'CT' : 'T');
+  return /^(?:counter[-_ ]?terrorists|terrorists)$/i.test(source) ? side === 'counterTerrorists' ? 'CT' : 'T' : source;
 }
 
 export function clock(game) {
@@ -91,5 +92,5 @@ export function localPreviewMode(address, development) {
   const url = new URL(address);
   if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)) return null;
   const value = url.searchParams.get('preview');
-  return ['1', 'live', 'prematch', 'lineups', 'veto', 'break', 'postmatch', 'statistics', 'spotlight', 'waiting', 'bomb', 'unresolved', 'stale', 'missing'].includes(value) ? value : null;
+  return ['1', 'live', 'dust2', 'prematch', 'lineups', 'veto', 'break', 'postmatch', 'statistics', 'spotlight', 'waiting', 'bomb', 'unresolved', 'stale', 'missing'].includes(value) ? value : null;
 }

@@ -1,5 +1,6 @@
 import { panelSettings } from './model.js';
 import { adaptOptions, metadataKey, startMetadataPolling } from './model/metadata.js';
+import { loadRadarCatalog } from './model/assets.js';
 
 const initial = () => ({
   snapshot: null,
@@ -12,6 +13,8 @@ const initial = () => ({
   metadataAvailable: false,
   lowerThirdVisible: false,
   radarTimelineAccepted: true,
+  radarCatalog: [],
+  assetBase: null,
   now: Date.now(),
   media: () => null,
 });
@@ -51,6 +54,10 @@ export function createHudStore(clientFactory) {
     const error = () => { if (valid()) publish({ message: 'Connection interrupted · retrying' }); };
     Promise.resolve().then(clientFactory).then(client => {
       if (!valid()) return;
+      if (client.packageBase) {
+        publish({ assetBase: client.packageBase });
+        void loadRadarCatalog(client.packageBase, signal).then(radarCatalog => { if (valid()) publish({ radarCatalog }); });
+      }
       publish({ preview: client.preview === true, previewScene: client.previewScene, media: path => {
         try { return typeof path === 'string' && path ? client.media(path) : null; } catch { return null; }
       } });

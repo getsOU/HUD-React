@@ -1,12 +1,14 @@
 import { number, roster, sideTeam, text } from '../model.js';
 import { metadataKey } from './metadata.js';
+import { radarLayer } from './assets.js';
+import { sourceName } from './source-name.js';
 export { SCENES, sceneFor } from './panel.js';
 
 export const matchOf = snapshot => snapshot?.managedMatch ?? snapshot?.game?.managedMatch ?? null;
 export const currentMetadata = (snapshot, metadata) => metadata?.key === metadataKey(snapshot) ? metadata : null;
 export const profileFor = (snapshot, metadata, steamId, reference = null) => currentMetadata(snapshot, metadata)?.players?.[steamId]
   ?? (typeof steamId === 'string' && steamId && reference?.id === steamId && reference.missing !== true ? { name: reference.name, avatar: reference.image } : null);
-export const playerName = (player, profile) => text(profile?.name, text(player?.name));
+export const playerName = (player, profile) => text(profile?.name, text(sourceName(player?.name)));
 export const weaponList = player => Array.isArray(player?.weapons) ? player.weapons.filter(Boolean) : [];
 export const utility = player => weaponList(player).filter(weapon => weapon.type === 'grenade');
 export const hasBomb = player => weaponList(player).some(weapon => weapon.type === 'bomb' || weapon.kind === 'c4');
@@ -96,7 +98,7 @@ const point = value => value && ['x', 'y', 'z'].every(key => typeof value[key] =
 const numeric = value => typeof value === 'string' && value.trim().length ? Number(value) : NaN;
 
 /** Original MIT geometry. Relative world positions are not presented as a calibrated map. */
-export function radarView(snapshot, config = {}, now = Date.now(), timelineAccepted = true) {
+export function radarView(snapshot, config = {}, now = Date.now(), timelineAccepted = true, catalog = []) {
   const game = snapshot?.game;
   const radar = game?.radar;
   const received = Date.parse(radar?.receivedAt);
@@ -110,7 +112,7 @@ export function radarView(snapshot, config = {}, now = Date.now(), timelineAccep
     const pose = poses.get(player.steamId);
     const position = point(pose?.position) ? pose.position : player.position;
     return point(position) ? [{ player, key: `${player.steamId ?? 'unknown'}-${index}`, position, usesHlae: point(pose?.position),
-      forward: point(pose?.forward) ? pose.forward : player.forward, dead: player.health === 0 || (player.health == null && pose?.health === 0) }] : [];
+      forward: point(pose?.forward) ? pose.forward : player.forward, dead: (number(pose?.health) ?? number(player.health)) === 0 }] : [];
   });
   const bomb = point(game?.bomb?.position) ? game.bomb : null;
   const allGrenades = (Array.isArray(game?.grenades) ? game.grenades : []).filter(Boolean);
@@ -118,8 +120,14 @@ export function radarView(snapshot, config = {}, now = Date.now(), timelineAccep
   const flames = allGrenades.flatMap(grenade => (Array.isArray(grenade.flames) ? grenade.flames : [])
     .filter(flame => point(flame?.position)).map(flame => ({ ...flame, key: `${grenade.id}-${flame.id}` })));
   const limits = Object.fromEntries(['minX', 'maxX', 'minY', 'maxY'].map(key => [key, numeric(config[key])]));
-  const calibrated = Boolean(config.overview && config.mapName === game?.map && Object.values(limits).every(Number.isFinite) && limits.maxX > limits.minX && limits.maxY > limits.minY);
+  const custom = Boolean(config.overview && config.mapName === game?.map && Object.values(limits).every(Number.isFinite) &&
+    Number.isFinite(limits.maxX - limits.minX) && Number.isFinite(limits.maxY - limits.minY) && limits.maxX > limits.minX && limits.maxY > limits.minY);
+  const observedPose = poses.get(game?.observedPlayer?.steamId);
+  const observedZ = point(observedPose?.position) ? observedPose.position.z : game?.observedPlayer?.position?.z;
+  const layer = custom ? null : radarLayer(catalog, game?.map, observedZ);
+  const calibrated = custom || layer !== null;
   let bounds = limits;
+  if (layer) bounds = { minX: layer.posX, maxX: layer.posX + layer.width * layer.scale, maxY: layer.posY, minY: layer.posY - layer.height * layer.scale };
   if (!calibrated) {
     const positions = [...players.map(p => p.position), ...(bomb ? [bomb.position] : []), ...grenades.map(g => g.position), ...flames.map(f => f.position)];
     const xs = positions.map(p => p.x), ys = positions.map(p => p.y);
@@ -140,11 +148,12 @@ export function radarView(snapshot, config = {}, now = Date.now(), timelineAccep
     const forward = marker.forward;
     const direction = point(forward) && (forward.x !== 0 || forward.y !== 0)
       ? Math.atan2(-forward.y / (bounds.maxY - bounds.minY), forward.x / (bounds.maxX - bounds.minX)) * 180 / Math.PI : null;
-    return [{ ...marker, ...at, direction }];
+    return [{ ...marker, ...at, direction, otherFloor: layer && ((layer.minZ != null && marker.position.z < layer.minZ) || (layer.maxZ != null && marker.position.z >= layer.maxZ)) }];
   });
   const hlaePlayers = players.filter(player => player.usesHlae).length;
-  return { calibrated, overview: calibrated ? config.overview : null, source: hlaePlayers > 0 ? hlaePlayers === players.length ? 'HLAE · fresh' : 'HLAE + GSI' : 'GSI',
-    label: calibrated ? `${text(game.map)} · configured overview` : 'Relative world positions · not a map overview', players: projected,
+  return { calibrated, overview: custom ? config.overview : layer?.image ?? null, packagedOverview: Boolean(layer), layer: layer?.id, sites: layer?.sites ?? [],
+    source: hlaePlayers > 0 ? hlaePlayers === players.length ? 'HLAE · fresh' : 'HLAE + GSI' : 'GSI',
+    label: calibrated ? `${text(game.map)} · ${custom ? 'configured overview' : layer.id}` : 'Map unavailable · relative positions', players: projected,
     bomb: bomb && project(bomb.position) ? { ...bomb, ...project(bomb.position) } : null,
     grenades: grenades.flatMap(grenade => { const at = project(grenade.position); return at ? [{ ...grenade, ...at }] : []; }),
     flames: flames.flatMap(flame => { const at = project(flame.position); return at ? [{ ...at, id: flame.key }] : []; }) };

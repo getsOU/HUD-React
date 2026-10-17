@@ -1,14 +1,23 @@
 import { clock, money, sideTeam, statistic, teamName, text } from '../../model.js';
 import { aliveSummary, economy, killEntries, mapSeries, matchOf, vetoEntries } from '../../model/showcase.js';
 import { Empty, LocalImage } from './Common.jsx';
+import { Icon } from './Icons.jsx';
+import { sourceName } from '../../model/source-name.js';
 
 function TeamScore({ state, side, label }) {
   const slot = side === 'counterTerrorists' ? 'ct' : 't';
   const team = sideTeam(state.snapshot, side);
   const alive = aliveSummary(state.snapshot, side);
-  return <section className={`team-score ${slot}`} aria-label={label}><LocalImage path={team?.logo} name={teamName(state.snapshot, side)} media={state.media} />
+  return <section className={`team-score ${slot}`} aria-label={label}><LocalImage path={team?.logo} name={teamName(state.snapshot, side)} media={state.media} optional />
     <div><span className="side-label">{label}</span><h1 title={teamName(state.snapshot, side)}>{teamName(state.snapshot, side)}</h1><p className="alive-count">{alive.known ? `${alive.alive} ALIVE${alive.complete ? '' : ` · ${alive.known}/${alive.total} HP known`}` : 'ALIVE –'}{team && ` · SERIES ${team.seriesWins}`}</p></div>
     <strong className="score">{statistic(state.snapshot?.game?.[slot]?.score)}</strong></section>;
+}
+export function LiveMeta({ state }) {
+  const match = matchOf(state.snapshot), game = state.snapshot?.game;
+  return <div className="live-meta"><span>{text(game?.map)} · R{statistic(game?.roundNumber)}{match ? ` · BO${match.bestOf} · ${statistic(match.teamA?.seriesWins)}:${statistic(match.teamB?.seriesWins)}` : ''}</span>
+    <span>{state.settings.caption}{match?.competition?.name ? ` · ${match.competition.name}` : ''}</span>
+    {state.settings.showSeries && <span className="mini-series">{mapSeries(state.snapshot).map((map, i) => <span key={`${map.id}-${i}`} title={`${text(map.name)} · ${text(map.status)}`}>{text(map.name, text(map.gameName))}{map.scoreA != null || map.scoreB != null ? ` ${statistic(map.scoreA)}:${statistic(map.scoreB)}` : ''}</span>)}</span>}
+  </div>;
 }
 export function Scoreboard({ state }) {
   const game = state.snapshot?.game;
@@ -42,7 +51,7 @@ export function RoundHistory({ state }) {
   const rounds = state.snapshot?.game?.roundWins;
   if (!Array.isArray(rounds)) return null;
   return <section className="round-history" aria-label="Round history">{rounds.length ? rounds.map((round, i) => <span key={`${round.roundNumber}-${i}`} className={round.winner === 'counterTerrorists' ? 'ct' : round.winner === 'terrorists' ? 't' : 'neutral'} title={`Round ${round.roundNumber}: ${round.winner}, ${round.reason}`}>
-    <b>{round.roundNumber}</b><small>{round.winner === 'counterTerrorists' ? 'CT' : round.winner === 'terrorists' ? 'T' : '–'}</small><i>{({ bombExploded: 'B', bombDefused: 'D', elimination: 'K', timeExpired: 'T', hostageRescued: 'H' })[round.reason] ?? '?'}</i></span>) : <small>No completed rounds supplied</small>}</section>;
+    <Icon name={round.reason === 'bombDefused' ? 'ui/defuser_white' : round.reason === 'bombExploded' ? 'weapons/c4' : 'killfeed/icon_suicide'} label={`Round ${round.roundNumber}: ${round.winner}, ${round.reason}`} base={state.assetBase} /></span>) : null}</section>;
 }
 export function RoundSituation({ state }) {
   const game = state.snapshot?.game;
@@ -62,13 +71,13 @@ export function Economy({ state, side }) {
   return <section className={`economy ${side === 'counterTerrorists' ? 'ct' : 't'}`} aria-label={`${side} economy`}><strong>{teamName(state.snapshot, side)}</strong>
     <span>CASH {sum(data.cash)}</span><span>EQUIPMENT {sum(data.equipment)}</span><small>KITS {data.kitsKnown ? `${data.kits} (${data.kitsKnown}/${data.alive.total} known)` : '–'} · UTILITY {data.inventoriesKnown ? `${data.utilities} entries (${data.inventoriesKnown}/${data.alive.total} inventories)` : '–'}</small></section>;
 }
-const killFlags = [['headshot', 'HS'], ['wallbang', 'WALL'], ['throughSmoke', 'SMOKE'], ['noScope', 'NOSCOPE'], ['attackerBlind', 'BLIND'], ['flashAssist', 'FLASH ASSIST']];
+const killFlags = [['headshot', 'killfeed/icon_headshot', 'Headshot'], ['wallbang', 'killfeed/penetrate', 'Wallbang'], ['throughSmoke', 'killfeed/smoke_kill', 'Through smoke'], ['noScope', 'killfeed/noscope', 'No scope'], ['attackerBlind', 'killfeed/blind_kill', 'Attacker blind'], ['flashAssist', 'ui/stat_assists', 'Flash assist']];
 const sideClass = side => side === 'counterTerrorists' ? 'ct' : side === 'terrorists' ? 't' : 'neutral';
 export function KillFeed({ state }) {
   if (!state.settings.showKillfeed) return null;
   const kills = killEntries(state.snapshot);
   return <section className="killfeed" aria-label="Killfeed">{kills.length ? kills.map(kill => <article key={kill.key} className="kill-row">
-    <div><strong className={sideClass(kill.killer?.side)}>{text(kill.killer?.name, 'World / source')}</strong>{kill.assister && <span> + {text(kill.assister.name)}</span>}<b className="kill-weapon">{text(kill.weapon).replace(/^weapon_/, '')}</b><strong className={sideClass(kill.victim?.side)}>{text(kill.victim?.name)}</strong></div>
-    <small>{killFlags.filter(([key]) => kill[key] === true).map(([, label]) => <span key={label}>{label}</span>)}</small>
-  </article>) : <p className="source-note">No kill events supplied · HLAE required</p>}</section>;
+    <div><strong className={sideClass(kill.killer?.side)} title={sourceName(kill.killer?.name)}>{text(sourceName(kill.killer?.name), 'World')}</strong>{kill.assister && <span className="kill-assister" title={sourceName(kill.assister.name)}> + {text(sourceName(kill.assister.name))}</span>}<Icon weapon={kill.weapon} base={state.assetBase} /><strong className={sideClass(kill.victim?.side)} title={sourceName(kill.victim?.name)}>{text(sourceName(kill.victim?.name))}</strong></div>
+    <small>{killFlags.filter(([key]) => kill[key] === true).map(([, name, label]) => <Icon key={name} name={name} label={label} base={state.assetBase} />)}</small>
+  </article>) : null}</section>;
 }

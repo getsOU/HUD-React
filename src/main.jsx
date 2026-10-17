@@ -9,12 +9,12 @@ async function createClient() {
   const mode = localPreviewMode(location.href, import.meta.env.DEV);
   if (import.meta.env.DEV && mode) {
     const { createPreviewClient } = await import('./preview/fixture.js');
-    return createPreviewClient(mode);
+    return Object.assign(createPreviewClient(mode), { packageBase: document.baseURI });
   }
   // Kept outside Vite's bundle so the official SDK remains byte-for-byte intact.
   const sdkAddress = new URL('sdk/sou-hud.js', document.baseURI).href;
   const { HudClient } = await import(/* @vite-ignore */ sdkAddress);
-  return new HudClient();
+  return Object.assign(new HudClient(), { packageBase: document.baseURI });
 }
 
 const store = createHudStore(createClient);
