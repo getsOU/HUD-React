@@ -1,0 +1,8 @@
+{
+  "id": "sou-basic-react",
+  "version": "0.1.0",
+  "name": "sOU Basic · React",
+  "apiVersion": 2,
+  "runtime": "web",
+  "entryPoint": "index.html"
+}

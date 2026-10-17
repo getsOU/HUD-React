@@ -1,0 +1,5 @@
+* text=auto eol=lf
+# Preserve verified upstream SDK bytes and their original whitespace.
+public/sdk/** -text -whitespace
+licenses/SOU-SDK-MIT.txt -text -whitespace
+*.png binary

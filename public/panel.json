@@ -1,0 +1,11 @@
+[
+  {
+    "name": "display",
+    "label": "Display",
+    "inputs": [
+      { "type": "text", "name": "caption", "label": "Caption" },
+      { "type": "checkbox", "name": "showRosters", "label": "Show player rosters" },
+      { "type": "checkbox", "name": "showObservedPlayer", "label": "Show observed player" }
+    ]
+  }
+]

@@ -1,0 +1,64 @@
+:root { font-family: Inter, 'Segoe UI', Arial, sans-serif; color: #f4f6fa; font-synthesis: none; text-rendering: optimizeLegibility; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; }
+body { display: grid; place-items: center; }
+#root { display: grid; place-items: center; }
+p, h1, h2, dl, dd, ol { margin: 0; }
+.stage { container-type: size; position: relative; width: min(100vw, 177.777778vh); height: min(56.25vw, 100vh); overflow: hidden; font-size: 1cqw; }
+.ct { --side: #79baff; --side-dark: #173958; }
+.t { --side: #ffbd6f; --side-dark: #583d22; }
+.neutral { --side: #d0d6df; --side-dark: #343b48; }
+.scoreboard { position: absolute; inset: 2.4% 22% auto; display: grid; grid-template-columns: 1fr 8.9cqw 1fr; gap: .3cqw; filter: drop-shadow(0 .3cqw .6cqw #0006); }
+.team-score { background: #111925f2; border-top: .2cqw solid var(--side); min-height: 6.8cqw; position: relative; display: grid; align-content: center; padding: 1cqw 4.4cqw 1cqw 1.2cqw; overflow: hidden; }
+.team-score.t { text-align: right; padding: 1cqw 1.2cqw 1cqw 4.4cqw; }
+.team-score h1 { font-size: 1.25cqw; font-weight: 650; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.side-label { font-size: .63cqw; font-weight: 700; letter-spacing: .12em; color: var(--side); }
+.score { position: absolute; right: 1cqw; top: 1.4cqw; color: var(--side); font-size: 3.1cqw; font-weight: 750; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.t .score { left: 1cqw; right: auto; }
+.round-info { text-align: center; background: #0a1019f5; padding: .65cqw .2cqw .55cqw; border-top: .2cqw solid #dce2eb; }
+.caption { color: #aab8ca; font-size: .54cqw; font-weight: 700; letter-spacing: .15em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.map { font-size: .66cqw; color: #ccd5e0; line-height: 1.8; }
+.clock { display: block; font-size: 2.1cqw; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.phase { font-size: .52cqw; font-weight: 700; letter-spacing: .09em; padding-top: .28cqw; color: #aab8ca; }
+.round { font-size: .53cqw; letter-spacing: .12em; color: #74869b; line-height: 1.9; }
+.round-info.bomb { border-top-color: #ff7970; }
+.round-info.bomb .clock, .round-info.bomb .phase { color: #ff948d; }
+.roster { position: absolute; top: 40%; width: 19.5%; left: 1.9%; }
+.roster.t { left: auto; right: 1.9%; }
+.roster-title { background: #0d1521eb; border-left: .16cqw solid var(--side); padding: .5cqw .75cqw; color: var(--side); text-transform: uppercase; font-size: .62cqw; letter-spacing: .1em; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.roster ol { padding: 0; list-style: none; display: grid; gap: .2cqw; margin-top: .2cqw; }
+.player-row { display: flex; min-height: 3.7cqw; align-items: center; gap: .6cqw; background: #111925ed; padding: .5cqw .6cqw; border-left: .16cqw solid transparent; }
+.player-row.observed { background: #1c2a3bee; border-left-color: var(--side); }
+.player-row.dead { opacity: .62; }
+.observer-slot { background: var(--side-dark); color: var(--side); width: 1.15cqw; height: 1.5cqw; display: grid; place-items: center; font-size: .72cqw; flex: 0 0 auto; font-weight: 700; }
+.player-main { flex: 1; min-width: 0; }
+.player-name { font-size: .92cqw; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.weapon { color: #a8b6c9; font-size: .57cqw; padding: .15cqw 0 .28cqw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vitals { display: flex; gap: .6cqw; font-size: .58cqw; }
+.vitals div { display: flex; gap: .24cqw; }
+.vitals dt { color: #8799b1; font-size: .5cqw; line-height: 1.5; }
+.vitals dd { font-variant-numeric: tabular-nums; color: #e0e7ef; }
+.player-stats { text-align: right; flex: 0 0 auto; align-self: stretch; padding-top: .2cqw; }
+.player-stats p { font-size: .7cqw; font-variant-numeric: tabular-nums; }
+.player-stats p span { color: #64768d; padding: 0 .1cqw; }
+.player-stats > span { display: block; font-size: .43cqw; letter-spacing: .06em; color: #8394aa; margin-top: .25cqw; }
+.player-stats .dead-label { color: #c4cdd8; }
+.empty-roster { background: #111925dd; font-size: .7cqw; color: #93a2b6; padding: 1.2cqw .9cqw; }
+.observed-player { position: absolute; bottom: 3.5%; left: 31%; width: 38%; display: flex; align-items: center; gap: 1cqw; padding: .9cqw 1.1cqw; border-top: .18cqw solid var(--side); background: #111925f2; box-shadow: 0 .5cqw 1cqw #0003; }
+.observed-player .observer-slot { width: 1.7cqw; height: 2.6cqw; font-size: 1.1cqw; }
+.observed-identity { min-width: 0; flex: 1; }
+.eyebrow { font-size: .5cqw; color: var(--side); font-weight: 700; letter-spacing: .14em; }
+.observed-identity h2 { font-size: 1.5cqw; line-height: 1.5; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.observed-identity > p:last-child { font-size: .7cqw; color: #a4b3c7; }
+.observed-vitals { display: flex; align-items: center; gap: 1.2cqw; text-align: center; }
+.observed-vitals dt { font-size: .47cqw; color: #95a6bc; letter-spacing: .09em; }
+.observed-vitals dd { font-size: 1.25cqw; font-weight: 600; line-height: 1.6; font-variant-numeric: tabular-nums; }
+.observed-vitals .ammo { border-left: .06cqw solid #314257; padding-left: 1.1cqw; }
+.observed-vitals .ammo dd { color: var(--side); font-size: 1.7cqw; line-height: 1.2; }
+.ammo dd span { font-size: .85cqw; color: #a4b3c7; }
+.connection { position: absolute; bottom: 1.3%; left: 1.9%; display: flex; align-items: center; font-size: .54cqw; letter-spacing: .06em; color: #b8c5d5; text-shadow: 0 .1cqw .2cqw #000; }
+.connection strong { color: #ffd189; margin-right: .65cqw; }
+.status-dot { width: .25cqw; height: .25cqw; border-radius: 100%; background: #d9ad69; margin-right: .35cqw; }
+.connection.live .status-dot { background: #82cbb0; }
+.signature { position: absolute; right: 1.9%; bottom: 1.3%; font-size: .55cqw; font-weight: 650; letter-spacing: .16em; color: #adbacbcc; text-shadow: 0 .1cqw .2cqw #000; }
+.waiting { position: absolute; left: 25%; right: 25%; top: 22%; text-align: center; font-size: .68cqw; font-weight: 600; letter-spacing: .18em; color: #c6d1df; text-shadow: 0 .1cqw .2cqw #000; }

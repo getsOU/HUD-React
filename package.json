@@ -1,0 +1,31 @@
+{
+  "name": "sou-hud-react",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "A transparent basic CS2 HUD using React and the public sOU HUD SDK.",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build && node scripts/assemble-package.mjs",
+    "lint": "eslint .",
+    "test": "node --test",
+    "sdk:sync": "node scripts/sync-sdk.mjs",
+    "sdk:verify": "node scripts/sync-sdk.mjs --verify",
+    "package": "npm run build && node scripts/pack.mjs"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@vitejs/plugin-react": "6.1.2",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "fflate": "0.8.3",
+    "globals": "17.13.0",
+    "vite": "8.3.4"
+  }
+}
