@@ -33,8 +33,8 @@ export function Radar({ state }) {
       })}
       {boltBombVisible(view.bomb) && <image href={packageAsset(`assets/boltobserv/img/bomb-${view.bomb.state === 'defused' ? 'defused' : ['planted', 'defusing'].includes(view.bomb.state) ? 'planted' : 'dropped'}.webp`, state.assetBase)} x={view.bomb.x - 1.1} y={view.bomb.y - 1.1} width="2.2" height="2.2"><title>{`Bomb · ${view.bomb.state}`}</title></image>}
     </svg>
-    {view.players.map(marker => <div key={marker.motionKey} className={`bolt-player ${sideClass(marker.player.side)} ${marker.dead ? 'dead' : ''} ${marker.observed ? 'active' : ''} ${marker.flashed ? 'flashed' : ''} ${marker.bombCarrier ? 'bomb-carrier' : ''}`} style={{ left: `${marker.x}%`, top: `${marker.y}%`, '--marker-scale': marker.scale }} title={`${sourceName(marker.player.name) ?? 'Unknown player'}${marker.dead ? ' · dead' : ''}${marker.observed ? ' · observed' : ''}${marker.bombCarrier ? ' · bomb carrier' : ''}`}>
-      <div className={`bolt-dot ${marker.direction === null ? 'no-direction' : ''}`} style={{ transform: `translate(-50%, -50%) rotate(${marker.dead || marker.direction === null ? 0 : marker.direction + 45}deg) scale(${marker.scale})` }} />
+    {view.players.map(marker => <div key={marker.motionKey} className={`bolt-player ${sideClass(marker.player.side)} ${marker.dead ? 'dead' : ''} ${marker.observed ? 'active' : ''} ${marker.flashed ? 'flashed' : ''} ${marker.bombCarrier ? 'bomb-carrier' : ''}`} style={{ left: `${marker.x}%`, top: `${marker.y}%`, '--marker-scale': marker.dead ? .7 : marker.scale }} title={`${sourceName(marker.player.name) ?? 'Unknown player'}${marker.dead ? ' · dead' : ''}${marker.observed ? ' · observed' : ''}${marker.bombCarrier ? ' · bomb carrier' : ''}`}>
+      <div className={`bolt-dot ${marker.direction === null ? 'no-direction' : ''}`} style={{ transform: `rotate(${marker.dead || marker.direction === null ? 0 : marker.direction + 45}deg) scale(${marker.dead ? .7 : marker.scale}) translate(-50%, -50%)` }} />
       {!marker.dead && <span className="bolt-label">{observerSlot(marker.player.observerSlot)}</span>}
     </div>)}
   </section>;

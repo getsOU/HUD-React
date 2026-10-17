@@ -93,13 +93,12 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
    0320883198e438cd6ae9fd490fa310027003727e, GPL-3.0-only; adapted to a radar container. */
 .radar { position: absolute; left: 1.25cqw; top: 1.25cqw; width: 15cqw; height: 15cqw; container-type: size; overflow: hidden; background: transparent; }
 .radar svg { display: block; width: 100%; height: 100%; }
-.bolt-player { position: absolute; width: 0; height: 0; z-index: 15; color: #d1dae5; }
+.bolt-player { position: absolute; width: 0; height: 0; z-index: 15; color: #c9d0d9; transition: left 50ms linear, top 50ms linear; }
 .bolt-player.ct { color: #5ab8f4; }
-.bolt-player { transition: left 50ms linear, top 50ms linear; }
-.radar-projectile { transition: transform 50ms linear; }
 .bolt-player.t { color: #f0c941; }
-.bolt-dot { position: absolute; width: 5.6cqw; height: 5.6cqw; background: currentColor; border-radius: 100% .2cqw 100% 100%; box-shadow: 0 0 1.6cqw .8cqw #0003; }
-.bolt-dot.no-direction { border-radius: 100%; }
+.bolt-player .bolt-dot, .bolt-label { position: absolute; left: 0; top: 0; width: 5.6cqw; height: 5.6cqw; transform-origin: 0% 0%; border-radius: 100% .2cqw 100% 100%; }
+.bolt-player .bolt-dot { background: currentColor; box-shadow: 0 0 1.6cqw .8cqw #0003; }
+.bolt-player .bolt-dot.no-direction { border-radius: 100%; }
 .bolt-player.bomb-carrier { color: #ff8200; }
 .bolt-player.bomb-carrier .bolt-dot { border-radius: 2cqw .4cqw 2cqw 2.4cqw; }
 .bolt-player.active { z-index: 7000; }
@@ -108,7 +107,9 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .bolt-player.flashed.active .bolt-dot { box-shadow: 0 0 0 .2cqw #000e, 0 0 0 1cqw #fffffff0, 0 0 2.4cqw 1.2cqw #fff3, inset 0 0 2cqw 1cqw #fffc; }
 .bolt-player.dead { z-index: 13; opacity: .4; }
 .bolt-player.dead .bolt-dot { border-radius: 0; clip-path: polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%); box-shadow: none; }
-.bolt-label { position: absolute; width: 5.6cqw; height: 5.6cqw; left: 0; top: 0; display: grid; place-items: center; transform: translate(-50%, -50%) scale(var(--marker-scale)); color: #000; font-weight: bold; text-shadow: 0 0 1.2cqw #fff3; font-size: 4.8cqw; line-height: 1; }
+.bolt-label { display: flex; justify-content: center; background: none; color: black; font-family: Arial, Helvetica, sans-serif; font-size: 4.8cqw; font-weight: 700; font-synthesis: weight; font-variant-numeric: normal; line-height: 5.6cqw; text-shadow: 0 0 1.2cqw #fff3; transform: scale(var(--marker-scale)) translate(-50%, -50%); }
+.bolt-player.active .bolt-label { font-size: 5cqw; }
+.radar-projectile { transition: transform 50ms linear; }
 .bolt-smoke { fill: #9f9d9d; stroke: #d7d7d7; stroke-width: .6; opacity: .8; }
 .bolt-smoke.ct { fill: #678faa; stroke: #77c5f6; }
 .bolt-smoke.t { fill: #ccba7d; stroke: #f1d369; }
