@@ -4,6 +4,7 @@
 
 export const EMPTY = '–';
 export const DEFAULT_CAPTION = 'sOU BASIC';
+export { panelSettings, sceneFor, SCENES } from './model/panel.js';
 const phases = Object.freeze({
   warmup: 'WARMUP', freezeTime: 'FREEZE TIME', live: 'LIVE', over: 'ROUND OVER',
   bomb: 'BOMB', defuse: 'DEFUSE', timeoutCounterTerrorists: 'CT TIMEOUT',
@@ -30,32 +31,30 @@ export function time(value) {
   const rounded = Math.ceil(seconds);
   return `${Math.floor(rounded / 60)}:${String(rounded % 60).padStart(2, '0')}`;
 }
-export function panelSettings(state) {
-  const display = state?.values?.display;
-  return {
-    caption: text(display?.caption, DEFAULT_CAPTION),
-    // sOU initializes checkbox fields to false. Only an explicit hide request hides content.
-    showRosters: display?.hideRosters !== true,
-    showObservedPlayer: display?.hideObservedPlayer !== true,
-  };
-}
-
 /** Resolve managed identity by explicit side assignment, never TeamA/TeamB order. */
-export function teamName(snapshot, side) {
+export function sideTeam(snapshot, side) {
   const game = snapshot?.game;
   const slot = side === 'counterTerrorists' ? 'ct' : 't';
   const match = snapshot?.managedMatch ?? game?.managedMatch;
   const mapping = match?.[slot];
   if (mapping?.side === side && knownMappings.has(mapping.status) && text(mapping.teamId, null)) {
     const team = [match?.teamA, match?.teamB].find(candidate => candidate?.id === mapping.teamId);
-    if (team) return text(team.name, text(team.shortName, side === 'counterTerrorists' ? 'CT' : 'T'));
+    if (team) return team;
   }
+  return null;
+}
+export function teamName(snapshot, side) {
+  const game = snapshot?.game;
+  const slot = side === 'counterTerrorists' ? 'ct' : 't';
+  const team = sideTeam(snapshot, side);
+  if (team) return text(team.name, text(team.shortName, side === 'counterTerrorists' ? 'CT' : 'T'));
   return text(game?.[slot]?.name, side === 'counterTerrorists' ? 'CT' : 'T');
 }
 
 export function clock(game) {
   const bomb = game?.bomb;
-  if (bombPhases[bomb?.state]) return { label: bombPhases[bomb.state], value: time(bomb.secondsRemaining), bomb: true };
+  const bombStatus = bombPhases[bomb?.state] ? bomb.state : game?.roundBomb;
+  if (bombPhases[bombStatus]) return { label: bombPhases[bombStatus], value: time(bomb?.secondsRemaining), bomb: true };
   return {
     label: phases[game?.countdown?.phase] ?? phases[game?.roundPhase] ?? phases[game?.phase] ?? EMPTY,
     value: time(game?.countdown?.secondsRemaining),
@@ -92,5 +91,5 @@ export function localPreviewMode(address, development) {
   const url = new URL(address);
   if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)) return null;
   const value = url.searchParams.get('preview');
-  return ['1', 'waiting', 'bomb', 'unresolved'].includes(value) ? value : null;
+  return ['1', 'live', 'prematch', 'lineups', 'veto', 'break', 'postmatch', 'statistics', 'spotlight', 'waiting', 'bomb', 'unresolved', 'stale', 'missing'].includes(value) ? value : null;
 }

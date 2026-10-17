@@ -4,6 +4,10 @@ import {
   EMPTY, activeWeapon, clock, localPreviewMode, money, observerSlot, panelSettings,
   roster, samePlayer, statistic, teamName, time, weaponName,
 } from '../src/model.js';
+const coreSettings = state => {
+  const { caption, showRosters, showObservedPlayer } = panelSettings(state);
+  return { caption, showRosters, showObservedPlayer };
+};
 
 test('missing and invalid values remain unknown, zero remains meaningful', () => {
   for (const value of [null, undefined, NaN, Infinity, -1, '0']) {
@@ -18,8 +22,8 @@ test('missing and invalid values remain unknown, zero remains meaningful', () =>
 });
 
 test('panel absence is visible; only explicit true hide flags hide content', () => {
-  assert.deepEqual(panelSettings(null), { caption: 'sOU BASIC', showRosters: true, showObservedPlayer: true });
-  assert.deepEqual(panelSettings({ values: { display: { caption: '  Finals  ', hideRosters: true, hideObservedPlayer: true } } }),
+  assert.deepEqual(coreSettings(null), { caption: 'sOU BASIC', showRosters: true, showObservedPlayer: true });
+  assert.deepEqual(coreSettings({ values: { display: { caption: '  Finals  ', hideRosters: true, hideObservedPlayer: true } } }),
     { caption: 'Finals', showRosters: false, showObservedPlayer: false });
   assert.equal(panelSettings({ values: { display: { hideRosters: 'true', hideObservedPlayer: 1 } } }).showRosters, true);
   assert.equal(panelSettings({ values: { display: { hideRosters: 'true', hideObservedPlayer: 1 } } }).showObservedPlayer, true);

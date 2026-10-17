@@ -70,7 +70,7 @@ test('only state from this installed identity changes panel settings; actions ar
   const { store, calls } = fixture();
   const unsubscribe = store.subscribe(() => {});
   await tick();
-  const state = { values: { display: { hideRosters: true, caption: 'Finals' } } };
+  const state = { revision: 0, values: { display: { hideRosters: true, caption: 'Finals' } } };
   calls[1].receive({ hudId: 'another', version: '0.1.0', state });
   assert.equal(store.getSnapshot().settings.showRosters, true);
   calls[1].receive({ hudId: 'sou-basic-react', version: '0.1.0', state });

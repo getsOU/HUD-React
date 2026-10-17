@@ -1,8 +1,17 @@
 {
   "id": "sou-basic-react",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "name": "sOU Basic · React",
   "apiVersion": 2,
   "runtime": "web",
-  "entryPoint": "index.html"
+  "entryPoint": "index.html",
+  "subviews": [
+    { "name": "Prematch", "route": "views/prematch" },
+    { "name": "Lineups", "route": "views/lineups" },
+    { "name": "Map veto", "route": "views/veto" },
+    { "name": "Break", "route": "views/break" },
+    { "name": "Results", "route": "views/postmatch" },
+    { "name": "Statistics", "route": "views/statistics" },
+    { "name": "Spotlight", "route": "views/spotlight" }
+  ]
 }

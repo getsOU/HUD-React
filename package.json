@@ -1,10 +1,10 @@
 {
   "name": "sou-hud-react",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "license": "MIT",
-  "description": "A transparent basic CS2 HUD using React and the public sOU HUD SDK.",
+  "description": "A complete transparent CS2 broadcast HUD using React and the public sOU HUD SDK.",
   "engines": { "node": ">=22.13.0" },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
