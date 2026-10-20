@@ -51,39 +51,52 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
 .round-history .icon { --icon-height: .729167cqw; }
 .round-situation { position: absolute; top: 5.208333cqw; left: 25cqw; width: 50cqw; height: 1.041667cqw; display: flex; gap: .416667cqw; justify-content: center; align-items: center; background: #162940fa; font-size: .625cqw; overflow: hidden; white-space: nowrap; }
 .round-situation span { color: #bfd0e7; }
-.roster { position: absolute; left: 1.25cqw; top: 38.4375cqw; width: 16.25cqw; height: 16.5625cqw; overflow: hidden; }
+.roster { position: absolute; left: 1.25cqw; top: 35.104167cqw; width: 16.25cqw; height: 19.895833cqw; overflow: hidden; }
 .roster.t { left: 82.5cqw; }
-.roster-title { position: absolute; inset: 0 0 auto; height: 1.25cqw; display: flex; align-items: center; justify-content: space-between; padding: 0 .416667cqw; background: #0a1422f2; border-top: .104167cqw solid var(--side); color: var(--side); font-size: .677083cqw; }
+.roster-title { position: absolute; inset: 0 0 auto; height: 1.145833cqw; display: flex; align-items: center; justify-content: space-between; padding: 0 .416667cqw; background: #0a1422f2; border-top: .104167cqw solid var(--side); color: var(--side); font-size: .677083cqw; }
 .roster-title > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .roster-title small { font-size: .520833cqw; flex: 0 0 auto; }
-.roster ol { position: absolute; top: 1.25cqw; left: 0; right: 0; list-style: none; }
-.player-row { position: relative; height: 2.8125cqw; padding: .208333cqw .3125cqw; background: #101925ee; border-bottom: .052083cqw solid #344253; overflow: hidden; }
-.player-row.observed { background: #20354bee; box-shadow: inset .15625cqw 0 var(--side); }
-.player-row.dead { opacity: .65; }
-.player-top, .player-bottom { display: grid; align-items: center; gap: .104167cqw; min-width: 0; height: 1.145833cqw; }
-.player-top { grid-template-columns: .9375cqw .833333cqw minmax(0, 1fr) 1.5625cqw 2.1875cqw 2.708333cqw; }
-.player-top > *, .player-bottom > *, .observed-identity > *, .observed-weapon > * { min-width: 0; }
-.portrait-cell { display: grid; place-items: center; height: 100%; overflow: hidden; }
-.player-bottom { grid-template-columns: 2.395833cqw 2.291667cqw minmax(0, 1fr); }
-.player-bottom > .loadout-details { margin-inline-start: .416667cqw; }
+.roster ol { position: absolute; top: 1.145833cqw; left: 0; right: 0; list-style: none; }
 .weapon-cell { display: grid; align-items: end; justify-items: start; min-width: 0; height: 100%; overflow: hidden; }
 .utility-cell { min-width: 0; height: .729167cqw; }
 .observer-slot { display: grid; place-items: center; width: .9375cqw; height: 1.041667cqw; color: var(--side); background: var(--side-dark); flex: 0 0 auto; font-size: .729167cqw; font-weight: 700; }
-.roster-avatar { width: .833333cqw; height: 1.041667cqw; }
-.player-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .78125cqw; }
-.player-health { display: grid; align-items: center; justify-items: end; height: 100%; text-align: right; color: var(--side); font-weight: 700; font-size: .677083cqw; }
-.player-kda { text-align: right; white-space: nowrap; overflow: hidden; font-size: .572917cqw; font-variant-numeric: tabular-nums; }
-.player-armor { display: grid; grid-template-columns: 1.6em minmax(0, 1fr); align-items: center; font-size: .572917cqw; color: #a8bbd3; }
-.player-armor > span:last-child { text-align: right; }
-.player-armor .icon { --icon-height: 1em; }
-.player-bottom .weapon-icon { --icon-height: .833333cqw; --icon-max-width: 2.291667cqw; }
 .equipment-badges, .inventory { display: flex; align-items: center; gap: .104167cqw; list-style: none; }
-.player-bottom .equipment-badges .icon { --icon-height: .572917cqw; }
 .inventory:not(.full-inventory) .icon { --icon-height: var(--utility-height); --icon-max-width: 9999px; }
 .inventory li { display: flex; align-items: center; position: relative; }
-.utility-count { font-size: .520833cqw; color: #f2d29f; }
-.player-money { white-space: nowrap; overflow: hidden; font-size: .625cqw; color: #d7e3ef; }
 .player-row > .meter { position: absolute; bottom: 0; left: 0; }
+/* Mirrored roster cards: identity, portrait, then weapon/health and equipment. */
+.player-row { position: relative; display: grid; grid-template-columns: .55cqw 4.1cqw 2.85cqw minmax(0, 1fr); grid-template-areas: "slot identity portrait loadout"; gap: .12cqw; height: 3.333333cqw; padding: .1cqw .25cqw .15cqw 0; background: #101925ee; border-inline-start: .13cqw solid var(--side); overflow: hidden; }
+.player-row + .player-row { margin-top: .208333cqw; }
+.player-row.observed { background: #20354bf2; }
+.player-row.dead { opacity: .65; }
+.player-row > * { min-width: 0; }
+.card-slot { grid-area: slot; align-self: start; width: 100%; height: 1.15em; margin-top: .1em; background: transparent; color: #fff; font-size: .6cqw; }
+.card-identity { grid-area: identity; display: grid; grid-template-rows: 1fr 1fr 1fr; align-items: center; min-width: 0; }
+.card-identity .player-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72cqw; line-height: 1.1; font-weight: 750; }
+.card-stats { color: var(--side); font-size: .6cqw; line-height: 1.1; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.card-money { color: #c9e591; font-size: .65cqw; line-height: 1.1; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.card-portrait { grid-area: portrait; display: grid; align-items: end; height: 100%; min-width: 0; overflow: hidden; }
+.card-portrait .roster-portrait { display: block; width: 100%; height: 100%; max-height: 3.083333cqw; object-fit: contain; object-position: center bottom; border-radius: 0; }
+.card-loadout { grid-area: loadout; display: grid; grid-template-rows: 1.55cqw 1cqw; align-content: space-between; min-width: 0; margin-inline-start: .3cqw; }
+.card-armament { display: grid; grid-template-columns: minmax(0, 1fr) 2.5cqw; gap: .25cqw; align-items: center; min-width: 0; }
+.card-armament .weapon-cell { height: 1.15cqw; align-items: center; }
+.card-armament .weapon-icon { --icon-height: 1cqw; --icon-max-width: 3.8cqw; }
+.card-health { font-size: 1.5cqw; font-weight: 850; color: #fff; text-align: right; line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.card-equipment { display: flex; align-items: end; gap: .4cqw; min-width: 0; height: 1cqw; }
+.card-status, .card-status .equipment-badges { display: inline-flex; align-items: end; gap: .2em; min-width: 0; }
+.card-status { flex: 0 0 auto; font-size: .65cqw; }
+.card-armor { display: inline-flex; align-items: end; }
+.card-status .icon { --icon-height: 1em; --icon-max-width: 2em; }
+.card-equipment .inventory:not(.full-inventory) { --utility-height: .729167cqw; flex: 0 0 auto; }
+.roster.t .player-row { grid-template-columns: minmax(0, 1fr) 2.85cqw 4.1cqw .55cqw; grid-template-areas: "loadout portrait identity slot"; padding: .1cqw 0 .15cqw .25cqw; border-inline-start: 0; border-inline-end: .13cqw solid var(--side); }
+.roster.t .player-row > .meter { transform: scaleX(-1); }
+.roster.t .card-identity { text-align: right; }
+.roster.t .card-loadout { margin-inline-start: 0; margin-inline-end: .3cqw; }
+.roster.t .card-armament { grid-template-columns: 2.5cqw minmax(0, 1fr); }
+.roster.t .card-armament .weapon-cell { grid-column: 2; grid-row: 1; justify-items: end; }
+.roster.t .card-health { grid-column: 1; grid-row: 1; text-align: left; }
+.roster.t .card-equipment, .roster.t .card-status, .roster.t .card-status .equipment-badges { flex-direction: row-reverse; }
+.roster.t .card-equipment .inventory:not(.full-inventory) { flex-direction: row-reverse; }
 .roster-economy { position: absolute; bottom: 0; left: 0; right: 0; height: 1.25cqw; display: grid; grid-template-columns: 1fr 1.25fr 1fr; align-items: center; padding: 0 .416667cqw; background: #091320f5; font-size: .625cqw; color: #aebfd5; }
 .roster-economy span:last-child { display: flex; align-items: center; gap: .208333cqw; }
 .empty-roster { position: absolute; top: 1.25cqw; font-size: .677083cqw; padding: .625cqw; background: #101925df; }
@@ -232,11 +245,11 @@ p, h1, h2, h3, dl, dd, ol, ul { margin: 0; padding: 0; }
  .inventory:not(.full-inventory) { --utility-height: .729167cqw; display: inline-flex; align-items: end; gap: .182292cqw; height: var(--utility-height); }
 .inventory:not(.full-inventory) li { display: inline-flex; align-items: end; height: var(--utility-height); }
 
-.player-bottom, .observed-weapon { align-items: flex-end; }
+.observed-weapon { align-items: flex-end; }
 .observed-weapon .inventory:not(.full-inventory) { --utility-height: .833333cqw; }
 
-.player-bottom .equipment-badges, .observed-identity .equipment-badges { display: inline-flex; align-items: end; gap: .25em; }
-.player-bottom .equipment-badges > *, .observed-identity .equipment-badges > * { --icon-max-width: 100%; }
+.observed-identity .equipment-badges { display: inline-flex; align-items: end; gap: .25em; }
+.observed-identity .equipment-badges > * { --icon-max-width: 100%; }
 .roster-economy > span, .observed-vitals dd { min-width: 0; overflow: hidden; white-space: nowrap; }
 .roster-economy > span:last-child { justify-content: end; }
 .observed-player.expanded { grid-template-columns: 4cqw minmax(0, 1fr) 5cqw; }
