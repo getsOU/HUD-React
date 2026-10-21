@@ -22,7 +22,7 @@ and [Valve artwork provenance](licenses/VALVE-ASSETS.md). The public sOU SDK rem
 
 ## Install and open an output
 
-Download the `.souhud` file from [GitHub Releases](https://github.com/getsOU/sOU-HUD-React/releases/latest).
+Download the `.souhud` file from [GitHub Releases](https://github.com/getsOU/HUD-React/releases/latest).
 The adjacent `.sha256` identifies the exact archive. Ready-made packages require
 no Node.js, .NET SDK, source checkout or separate web server.
 
@@ -403,7 +403,7 @@ not the pre-upload package. Upgrading requires an intentional version/hash revie
 The other consumed NuGet package is **SOU.Hud.Tool 0.2.0-preview.4**, pinned in
 `.config/dotnet-tools.json` and used for the real `.souhud` package validation.
 
-The [Blazor WebAssembly sibling](https://github.com/getsOU/sOU-HUD-WASM) uses the
+The [Blazor WebAssembly sibling](https://github.com/getsOU/HUD-WASM) uses the
 public [SOU.Hud.Sdk](https://www.nuget.org/packages/SOU.Hud.Sdk/0.2.0-preview.4)
 and [SOU.Live.Contracts](https://www.nuget.org/packages/SOU.Live.Contracts/0.2.0-preview.4)
 assemblies. Both HUDs use the same SDK version and protocol-v2 data conventions.
