@@ -1,0 +1,114 @@
+/* Cast reference layout. Geometry uses a 1920 x 1080 canvas; game artwork stays original.
+   Live scene only: presentation views retain their existing layouts. */
+.stage.view-live { --broadcast-blue: #071c50; --ct-fill: #12336d; --t-fill: #655b20; }
+.stage.view-live .ct { --side: #b6def5; --card-fill: var(--ct-fill); --card-empty: #09152bd9; }
+.stage.view-live .t { --side: #eee1a0; --card-fill: var(--t-fill); --card-empty: #25241ad9; }
+.stage.view-live .scoreboard { left: 39.25%; top: 1.25cqw; width: 21.5%; height: 5.3cqw; overflow: hidden; background: var(--broadcast-blue); border: .08cqw solid #b6def5; }
+.stage.view-live .live-map-series { left: .8cqw; top: 1.25cqw; width: 22cqw; height: 1.7cqw; gap: .08cqw; }
+.stage.view-live .live-map-series article { flex-direction: row; flex-wrap: wrap; align-content: center; align-items: center; justify-content: center; gap: 0 .25cqw; padding: .08cqw .15cqw; background: #071c50ed; border: 0; border-bottom: .1cqw solid transparent; }
+.stage.view-live .live-map-series article[aria-current="step"] { background: #102d64f5; border-bottom-color: var(--side,#eee1a0); color: #fff; }
+.stage.view-live .live-map-series strong { padding: 0; font-size: .65cqw; text-transform: uppercase; }
+.stage.view-live .live-map-series .map-pick { display: block; width: 100%; font-size: .5cqw; line-height: 1.1; color: #d6deec; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage.view-live .roster { top: 58.333333%; width: 16.666667%; height: 40.2%; overflow: visible; }
+.stage.view-live .roster.ct { left: .8%; }
+.stage.view-live .roster.t { left: 82.533333%; }
+.stage.view-live .roster-economy { position: absolute; left: 0; right: 0; top: -1.1cqw; bottom: auto; height: 1cqw; background: #091a3bbf; }
+.stage.view-live .roster-heading, .stage.view-live .roster-title { position: relative; inset: auto; height: 1.3cqw; padding: 0; background: transparent; border: 0; align-items: center; color: #fff; }
+.stage.view-live .roster-heading span:first-child, .stage.view-live .roster-title > span { display: inline-block; max-width: 78%; padding: .12cqw .3cqw; color: #102137; background: var(--side); font-size: .7cqw; font-weight: 800; text-transform: uppercase; }
+.stage.view-live .roster-heading span:last-child, .stage.view-live .roster-title small { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.stage.view-live .roster.t .roster-heading, .stage.view-live .roster.t .roster-title { flex-direction: row-reverse; }
+.stage.view-live .roster .player-row { isolation: isolate; position: relative; display: grid; grid-template-columns: .5cqw 4.35cqw 3.3cqw minmax(0,1fr); grid-template-areas: "slot identity portrait loadout"; gap: .12cqw; height: 4cqw; padding: 0; background: var(--card-fill); border: .06cqw solid #aab9cc77; border-inline-start: 0; overflow: hidden; }
+.stage.view-live .roster .player-row + .player-row { margin-top: .32cqw; }
+.stage.view-live .roster .card-slot { grid-area: slot; align-items: start; align-self: stretch; margin: 0; height: 100%; padding-top: .16cqw; font-size: .75cqw; font-weight: 800; background: var(--side); color: #17283b; }
+.stage.view-live .roster .card-identity { grid-area: identity; display: grid; grid-template-rows: 1.25cqw 1.1cqw 1.1cqw; align-content: center; min-width: 0; }
+.stage.view-live .roster .player-name { font-family: "Arial Narrow", "Bahnschrift Condensed", sans-serif; font-size: .9cqw; font-weight: 750; text-transform: uppercase; }
+.stage.view-live .roster .card-stats { overflow: hidden; display: flex; align-items: center; gap: .4cqw; font-size: .82cqw; color: var(--side); }
+.stage.view-live .roster .card-stats > span { display: inline-flex; align-items: center; gap: .17cqw; }
+.stage.view-live .roster .card-stats .icon { --icon-height: .78cqw; --icon-max-width: 1cqw; }
+.stage.view-live .roster .card-money { font-size: .85cqw; color: #d4edb2; }
+.stage.view-live .roster .card-portrait { grid-area: portrait; min-width: 0; height: 100%; overflow: hidden; }
+.stage.view-live .roster .card-portrait .roster-portrait { width: 100%; height: 100%; max-height: 4cqw; object-fit: cover; object-position: center bottom; }
+.stage.view-live .roster .card-loadout { grid-area: loadout; position: relative; isolation: isolate; margin: 0; height: 100%; padding: .16cqw .12cqw .2cqw; display: grid; grid-template-rows: 2.1cqw 1.15cqw; row-gap: .28cqw; align-content: center; background: var(--card-empty); }
+.stage.view-live .roster .card-armament, .stage.view-live .roster .card-equipment { position: relative; z-index: 1; }
+.stage.view-live .roster .card-armament { display: grid; grid-template-columns: minmax(0,1fr) 2.65cqw; gap: .2cqw; align-items: center; }
+.stage.view-live .roster .card-armament .weapon-cell { height: 1.6cqw; }
+.stage.view-live .roster .card-armament .weapon-icon { --icon-height: 1.6cqw; --icon-max-width: 4.7cqw; }
+.stage.view-live .roster .card-health { font-family: Impact,"Arial Narrow",sans-serif; font-size: 2.2cqw; font-weight: 400; color: #fff; }
+.stage.view-live .roster .card-equipment { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; height: 1.15cqw; gap: .4cqw; }
+.stage.view-live .roster .card-equipment .inventory:not(.full-inventory) { --utility-height: 1cqw; justify-self: start; }
+.stage.view-live .roster .card-status { display: inline-flex; align-items: end; gap: .25cqw; font-size: .85cqw; justify-self: end; }
+.stage.view-live .roster .card-status .icon { --icon-height: .95cqw; --icon-max-width: 1.45cqw; }
+.stage.view-live .roster .card-status .equipment-badges { gap: .25cqw; }
+.stage.view-live .roster .card-loadout > .meter { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; z-index: 0; border: 0; pointer-events: none; background: var(--card-empty); }
+.stage.view-live .roster .card-loadout > .meter::-webkit-progress-value { height: 100%; margin: 0; background: var(--card-fill); }
+.stage.view-live .roster .card-conditions { position: absolute; left: 6cqw; top: .12cqw; display: flex; align-items: center; gap: .12cqw; z-index: 2; }
+.stage.view-live .roster .card-conditions .icon { --icon-height: .55cqw; --icon-max-width: .7cqw; }
+.stage.view-live .roster .player-row.observed { background: var(--card-fill); outline: .06cqw solid #fff; outline-offset: -.06cqw; box-shadow: 0 0 .4cqw #d3eeff99; }
+.stage.view-live .roster .player-row.dead { width: 11.7cqw; grid-template-columns: .5cqw 4.35cqw 3.3cqw minmax(0,1fr); grid-template-areas: "slot identity portrait death"; background: #454545b8; filter: grayscale(1); opacity: .8; }
+.stage.view-live .roster .player-row.dead .card-money { color: #ddd; }
+.stage.view-live .roster .card-death { grid-area: death; display: grid; place-items: center; min-width: 0; overflow: hidden; }
+.stage.view-live .roster .card-death .icon { --icon-height: 3.8cqw; --icon-max-width: 3.3cqw; opacity: .35; }
+.stage.view-live .roster.t .player-row { padding: 0; border-inline-start: .06cqw solid #aab9cc77; border-inline-end: 0; grid-template-columns: minmax(0,1fr) 3.3cqw 4.35cqw .5cqw; grid-template-areas: "loadout portrait identity slot"; }
+.stage.view-live .roster.t .card-loadout { margin: 0; }
+.stage.view-live .roster.t .card-armament { grid-template-columns: 2.65cqw minmax(0,1fr); }
+.stage.view-live .roster.t .card-stats { justify-content: end; flex-direction: row; }
+.stage.view-live .roster.t .card-stats > span { flex-direction: row-reverse; }
+.stage.view-live .roster.t .card-equipment { grid-template-columns: auto minmax(0,1fr); }
+.stage.view-live .roster.t .card-equipment .inventory:not(.full-inventory) { grid-column: 2; grid-row: 1; justify-self: end; }
+.stage.view-live .roster.t .card-status { grid-column: 1; grid-row: 1; justify-self: start; }
+.stage.view-live .roster.t .card-loadout > .meter { transform: scaleX(-1); }
+.stage.view-live .roster.t .card-conditions { left: auto; right: 6cqw; }
+.stage.view-live .roster.t .player-row.dead { margin-inline-start: auto; grid-template-columns: minmax(0,1fr) 3.3cqw 4.35cqw .5cqw; grid-template-areas: "death portrait identity slot"; }
+.stage.view-live .round-history { top: 7cqw; }
+.stage.view-live .killfeed { right: .8%; top: 8cqw; }
+.stage.view-live .sponsors, .stage.view-live .sponsor-rail { left: auto; right: 1.2%; top: 1.25cqw; width: 20cqw; height: 2.2cqw; background: transparent; justify-content: flex-end; }
+.stage.view-live .signature { display: none; }
+
+.stage.view-live .broadcast-caption { height: 1.1cqw; font-size: .65cqw; color: #fff; background: #061641; }
+.stage.view-live .scoreboard-main { top: 0; grid-template-columns: minmax(0,1fr) 4.4cqw minmax(0,1fr); }
+.stage.view-live .has-caption .scoreboard-main { top: 1.1cqw; }
+.stage.view-live .team-score { display: grid; grid-template-columns: 3.2cqw .6cqw minmax(0,1fr); gap: .2cqw; padding: .15cqw .25cqw; border: 0; }
+.stage.view-live .team-score .local-image { width: 3.2cqw; height: 3.2cqw; }
+.stage.view-live .team-score > div { min-width: 0; }
+.stage.view-live .team-score:has(.local-image) h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.stage.view-live .team-score:not(:has(.local-image)) { grid-template-columns: minmax(0,1fr) 2.8cqw; }
+.stage.view-live .team-score:not(:has(.local-image)) h1 { font-size: .8cqw; }
+.stage.view-live .series-pips { flex-direction: column; gap: .25cqw; margin: 0; }
+.stage.view-live .series-pips i { width: .4cqw; height: .4cqw; background: #536986; }
+.stage.view-live .series-pips i.won { background: #fff; }
+.stage.view-live .team-score.t { grid-template-columns: minmax(0,1fr) .6cqw 3.2cqw; }
+.stage.view-live .team-score.t:not(:has(.local-image)) { grid-template-columns: 2.8cqw minmax(0,1fr); }
+.stage.view-live .team-score.t .score { grid-column: 1; grid-row: 1; }
+.stage.view-live .team-score.t > div { grid-column: 2; grid-row: 1; }
+.stage.view-live .team-score.t .local-image { grid-column: 3; grid-row: 1; }
+.stage.view-live .score { font-family: Impact,"Arial Narrow",sans-serif; font-size: 2.65cqw; font-weight: 400; color: #fff; }
+.stage.view-live .round-info { background: transparent; }
+.stage.view-live .round-label { font-size: .72cqw; color: #fff; }
+.stage.view-live .clock { font-size: 1.25cqw; color: #fff; }
+.stage.view-live .round-info.bomb { background: #8b3023; }
+.stage.view-live .radar { left: .8cqw; top: 3.15cqw; width: 22cqw; height: 22cqw; }
+.stage.view-live .live-map-series article > span { display: none; }
+.stage.view-live .live-map-series b { width: auto; font-size: .65cqw; }
+.stage.view-live .roster ol { top: 1.3cqw; }
+.stage.view-live .roster .card-loadout > .meter::-webkit-progress-bar { background: var(--card-empty); }
+.stage.view-live .roster .card-loadout > .meter::-webkit-progress-value { background: var(--card-fill); }
+.stage.view-live .roster .card-loadout > .meter::-moz-progress-bar { background: var(--card-fill); }
+.stage.view-live .observed-player { left: 41.15%; top: auto; bottom: 1cqw; width: 17.7%; height: 7cqw; padding: 0; display: block; background: #091a3be8; border: .06cqw solid #b6def577; }
+.stage.view-live .observed-player::before { content: ""; position: absolute; bottom: 0; width: 100%; height: 1.65cqw; background: var(--card-fill); }
+.stage.view-live .observed-main, .stage.view-live .observed-identity, .stage.view-live .observed-weapon, .stage.view-live .observed-vitals { display: contents; }
+.stage.view-live .observed-avatar-cell { position: absolute; left: 0; top: 0; width: 6cqw; height: 5.3cqw; }
+.stage.view-live .observed-avatar-cell img { width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+.stage.view-live .observed-identity > .observer-slot { position: absolute; left: .2cqw; bottom: .2cqw; width: 1cqw; height: 1.2cqw; font-size: .7cqw; }
+.stage.view-live .observed-identity h2 { position: absolute; left: 1.4cqw; bottom: .15cqw; width: 12cqw; height: 1.3cqw; font-size: 1cqw; text-transform: uppercase; }
+.stage.view-live .observed-vitals > div:first-child { position: absolute; bottom: .15cqw; right: .5cqw; color: #fff; }
+.stage.view-live .observed-vitals dt { display: none; }
+.stage.view-live .observed-vitals > div:first-child dd { font: 1.3cqw Impact,"Arial Narrow",sans-serif; }
+.stage.view-live .observed-vitals > div:last-child { position: absolute; top: 4.3cqw; left: .3cqw; color: #fff; }
+.stage.view-live .observed-vitals > div:last-child::before { content: "ARM "; font-size: .6cqw; }
+.stage.view-live .observed-vitals > div:last-child dd { display: inline; font-size: .6cqw; }
+.stage.view-live .observed-weapon > .weapon-cell { position: absolute; right: .5cqw; top: .6cqw; width: 5cqw; height: 1.2cqw; }
+.stage.view-live .observed-weapon > .ammo-cell { position: absolute; right: .5cqw; top: 2.3cqw; height: 1.3cqw; }
+.stage.view-live .observed-player .ammo { font-size: 1.15cqw; }
+.stage.view-live .observed-weapon > .utility-cell { position: absolute; left: 6.4cqw; right: .3cqw; top: 4.2cqw; height: .9cqw; }
+.stage.view-live .observed-identity .equipment-badges { position: absolute; left: .3cqw; top: .3cqw; }
+.stage.view-live .observed-player > .meter { display: none; }

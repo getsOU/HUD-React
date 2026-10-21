@@ -13,31 +13,42 @@ export function Inventory({ player, full = false, state }) {
     </li>))}
   </ul>;
 }
-export function PlayerBadges({ player, state, showHelmet = true }) {
+export function PlayerBadges({ player, state, showHelmet = true, showConditions = true }) {
   const base = state?.assetBase;
   return <span className="equipment-badges">{showHelmet && player.helmet === true && <Icon name="weapons/helmet" label="Helmet" base={base} />}
     {player.defuseKit === true && <Icon name="ui/defuser_white" label="Defuse kit" base={base} />}{hasBomb(player) && <Icon name="weapons/c4" label="Bomb carrier" base={base} />}
-    {player.flashed > 0 && <Icon name="killfeed/blind_kill" label={`Flashed ${player.flashed}`} base={base} />}
-    {player.smoked > 0 && <Icon name="killfeed/smoke_kill" label={`Smoked ${player.smoked}`} base={base} />}
-    {player.burning > 0 && <Icon name="weapons/inferno" label={`Burning ${player.burning}`} base={base} />}</span>;
+    {showConditions && player.flashed > 0 && <Icon name="killfeed/blind_kill" label={`Flashed ${player.flashed}`} base={base} />}
+    {showConditions && player.smoked > 0 && <Icon name="killfeed/smoke_kill" label={`Smoked ${player.smoked}`} base={base} />}
+    {showConditions && player.burning > 0 && <Icon name="weapons/inferno" label={`Burning ${player.burning}`} base={base} />}</span>;
 }
 export function PlayerRow({ player, state }) {
   const weapon = rosterWeapon(player), dead = playerDead(player);
   const selected = samePlayer(player, state.snapshot?.game?.observedPlayer);
   const profile = profileFor(state.snapshot, state.metadata, player.steamId, state.settings.feature.player);
   const name = playerName(player, profile);
+  const stats = `Kills / deaths / assists: ${statistic(player.stats?.kills)} / ${statistic(player.stats?.deaths)} / ${statistic(player.stats?.assists)}`;
   return <li className={`player-row${dead ? ' dead' : ''}${selected ? ' observed' : ''}`}>
-    <span className="observer-slot card-slot">{observerSlot(player.observerSlot)}</span>
+    <span className="observer-slot card-slot" aria-label={`Observer slot ${observerSlot(player.observerSlot)}`}>{!dead && observerSlot(player.observerSlot)}</span>
     <div className="card-identity"><strong className="player-name" title={name}>{name}</strong>
-      <span className="card-stats" aria-label="Kills / deaths / assists" title="Kills / deaths / assists">{statistic(player.stats?.kills)} / {statistic(player.stats?.deaths)} / {statistic(player.stats?.assists)}</span>
+      <span className="card-stats" aria-label={stats} title={stats}>
+        <span><Icon name="ui/crosshair_circle" label="Kills" base={state.assetBase} />{statistic(player.stats?.kills)}</span>
+        <span><Icon name="killfeed/icon_suicide" label="Deaths" base={state.assetBase} />{statistic(player.stats?.deaths)}</span>
+      </span>
       <span className="card-money">{money(player.money)}</span></div>
     <span className="card-portrait"><LocalImage path={profile?.avatar} name={name} media={state.media} className="roster-portrait" optional /></span>
-    <div className="card-loadout"><div className="card-armament"><span className="weapon-cell"><Icon weapon={weapon} base={state.assetBase} /></span>
-      <strong className="card-health" aria-label="Health" title="Health">{statistic(player.health)}</strong></div>
-      <div className="card-equipment"><Inventory player={player} state={state} /><span className="card-status">
-        {player.armor > 0 && <span className="card-armor" aria-label={`Armor: ${player.armor}`} title={`Armor: ${player.armor}`}><Icon name={player.helmet === true ? 'weapons/armor_helmet' : 'ui/armor'} label={player.helmet === true ? 'Armor and helmet' : 'Armor'} base={state.assetBase} /></span>}
-        {dead && <Icon name="killfeed/icon_suicide" label="Dead" base={state.assetBase} />}<PlayerBadges player={player} state={state} showHelmet={false} /></span></div></div>
-    <Meter value={player.health} label={`${name} health`} />
+    {dead ? <span className="card-death"><Icon name="killfeed/icon_suicide" label="Dead" base={state.assetBase} /></span>
+      : <><div className="card-loadout"><Meter value={player.health} label={`${name} health`} />
+        <div className="card-armament"><span className="weapon-cell"><Icon weapon={weapon} base={state.assetBase} /></span>
+          <strong className="card-health" aria-label="Health" title="Health">{statistic(player.health)}</strong></div>
+        <div className="card-equipment"><Inventory player={player} state={state} /><span className="card-status">
+          <PlayerBadges player={player} state={state} showHelmet={false} showConditions={false} />
+          {player.armor > 0 && <span className="card-armor" aria-label={`Armor: ${player.armor}`} title={`Armor: ${player.armor}`}><Icon name={player.helmet === true ? 'weapons/armor_helmet' : 'ui/armor'} label={player.helmet === true ? 'Armor and helmet' : 'Armor'} base={state.assetBase} /></span>}
+        </span></div></div>
+        <span className="card-conditions" aria-label="Player conditions">
+          {player.flashed > 0 && <Icon name="killfeed/blind_kill" label="Flashed" base={state.assetBase} />}
+          {player.smoked > 0 && <Icon name="killfeed/smoke_kill" label="In smoke" base={state.assetBase} />}
+          {player.burning > 0 && <Icon name="weapons/inferno" label="Burning" base={state.assetBase} />}
+        </span></>}
   </li>;
 }
 function EconomyFooter({ state, side }) {

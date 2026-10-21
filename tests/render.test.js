@@ -257,3 +257,21 @@ test('killfeed keeps full names, the assister side and meaningful icon order', (
   state.snapshot.game.killFeed = [{ ...entry, assister: null }];
   assert.doesNotMatch(renderToStaticMarkup(createElement(KillFeed, { state })), /alt="Flash assist"/);
 });
+
+test('reference card separates kill/death icons and keeps assists in its accessible statistics', () => {
+  const base = fixture('live').snapshot.game.players[0];
+  const html = renderPlayer(PlayerRow, { ...base, health: 44, stats: { kills: 8, deaths: 5, assists: 3 } });
+  assert.match(html, /ui\/crosshair_circle\.svg/);
+  assert.match(html, /killfeed\/icon_suicide\.svg/);
+  assert.match(html, /aria-label="Kills \/ deaths \/ assists: 8 \/ 5 \/ 3"/);
+  assert.ok(html.indexOf('class="card-loadout"') < html.indexOf('class="meter"'));
+});
+
+test('dead reference card removes health and loadout while retaining identity and the large death cue', () => {
+  const base = fixture('live').snapshot.game.players[0];
+  const html = renderPlayer(PlayerRow, { ...base, health: 0 });
+  assert.match(html, /class="card-death"/);
+  assert.match(html, /class="card-identity"/);
+  assert.doesNotMatch(html, /class="card-health"|class="card-loadout"|class="card-equipment"/);
+  assert.match(renderPlayer(PlayerRow, { ...base, health: null, isAlive: null }), /class="card-loadout"/);
+});
